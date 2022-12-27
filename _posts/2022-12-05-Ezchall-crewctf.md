@@ -6,6 +6,7 @@ authors: ['elleuch']
 categories: ['CTF', 'Web']
 tags: ['CREW CTF 2022', 'Web', 'SSTI', 'Filter']
 summary: 'Blind SSTI with filters'
+render_with_liquid: false
 ---
 
 # EzChall (Web, 906)
