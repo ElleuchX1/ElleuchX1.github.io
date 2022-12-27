@@ -81,7 +81,7 @@ theme_mode:   # [light|dark]
 img_cdn: 'https://ElleuchX1.github.io'
 
 # the avatar on sidebar, support local or CORS resources
-avatar: '/commons/avatar.jpg'
+avatar: 'https://media.discordapp.net/attachments/937287641337065542/1057294865039380571/dq.png?width=505&height=467'
 
 # boolean type, the global switch for ToC in posts.
 toc: true

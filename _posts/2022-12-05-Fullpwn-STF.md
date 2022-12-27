@@ -3,7 +3,8 @@ title: STACK The Flags 2022 Open – Fullpwn
 date: '2022-12-05'
 draft: false
 authors: ['elleuch']
-tags: ['STACK The Flags 2022', 'fullpwn', 'Electron', 'XSS', 'RCE', 'Selenium', 'HackTheBox']
+categories: ['CTF', 'boot2root']
+tags: ['STACK The Flags 2022','HackTheBox']
 summary: 'Fullpwn Solutions from STACK The Flags CTF'
 ---
 
