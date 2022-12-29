@@ -2,7 +2,7 @@
 title: HackTheBox - Laboratory Writeup
 subtitle: Here's my writeup for the RETIRED machine Laboratory, Which is an Easy Linux machine!
 summary: Here's my writeup for the RETIRED machine Laboratory, Which is an Easy Linux machine!
-date: '2021-07-17'
+date: '2021-04-17'
 draft: false
 authors: ['elleuch']
 categories: ['HackTheBox', 'easy']

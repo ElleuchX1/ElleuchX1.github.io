@@ -2,7 +2,7 @@
 title: HackTheBox - Passage Writeup
 subtitle: Here's my writeup for the RETIRED machine Atom, Which is a Medium Linux machine!
 summary: Here's my writeup for the RETIRED machine Atom, Which is a Medium Linux machine!
-date: '2021-07-10'
+date: '2021-03-06'
 draft: false
 authors: ['elleuch']
 categories: ['HackTheBox', 'Medium']
