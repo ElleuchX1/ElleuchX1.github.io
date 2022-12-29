@@ -1,14 +1,12 @@
 ---
 title: HackTheBox - Breadcrumbs Writeup
 subtitle: Here's my writeup for the RETIRED machine Breadcrumbs, Which is a hard Windows machine!
-# Summary for listings and search engines
 summary: Here's my writeup for the RETIRED machine Breadcrumbs, Which is an hard Windows machine!
 date: '2021-07-17'
 draft: false
 authors: ['elleuch']
 categories: ['HackTheBox', 'Hard']
 tags: ['HackThebox', 'Hard','Windows']
-summary: 'Here's my writeup for the RETIRED machine Breadcrumbs, Which is an Hard Windows machine that only require enumarations'
 image: /assets/img/htb-breadcrumbs/featured.jpg
 ---
 

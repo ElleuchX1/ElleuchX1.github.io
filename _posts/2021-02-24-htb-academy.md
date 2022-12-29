@@ -6,7 +6,6 @@ draft: false
 authors: ['elleuch']
 categories: ['HackTheBox', 'Easy']
 tags: ['HackThebox', 'easy']
-summary: 'Here's my writeup for the RETIRED machine Academy, Which is an easy Linux machine that only require enumarations'
 image: /assets/img/htb-academy/featured.jpg
 ---
 
