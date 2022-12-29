@@ -1,5 +1,6 @@
 ---
 title: STACK The Flags 2022 Open – Fullpwn
+subtitle: Writeup for the fullpwn category from STACK The flags 2022
 date: '2022-12-05'
 draft: false
 authors: ['elleuch']

@@ -1,5 +1,6 @@
 ---
 title: Crew CTF 2022 – EzChall & EzChall Again
+subtitle: Writeup for two web challenges from crewctf 2022
 date: '2022-04-17'
 draft: false
 authors: ['elleuch']
