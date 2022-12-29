@@ -8,6 +8,7 @@ authors: ['elleuch']
 categories: ['HackTheBox', 'Hard']
 tags: ['HackThebox', 'Hard','Windows']
 image: /assets/img/htb-breadcrumbs/featured.jpg
+render_with_liquid: false
 ---
 
 
