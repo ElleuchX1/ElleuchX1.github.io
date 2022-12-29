@@ -56,33 +56,33 @@ We have 6 ports open:
 
 Let's take a loot at both ports 80/443, but seems they both give us the same pages! We can work one of these
 
-!(ebook)(/assets/img/htb-breadcrumbs/e-book.png)
+![ebook](/assets/img/htb-breadcrumbs/e-book.png)
 
 Seems like it's an e-book library
 
-!(eth)(/assets/img/htb-breadcrumbs/eth.png)
+![eth](/assets/img/htb-breadcrumbs/eth.png)
 
 We have a search page for books, let's try to play with it a bit
 
-!(ethtest)(/assets/img/htb-breadcrumbs/ethtest.png)
+![ethtest](/assets/img/htb-breadcrumbs/ethtest.png)
 
 I tried few manual enumeration but nothing seem to give me an interesting output! 
 
 Let's capture the request with burpsuite to see what's actually going on
 
- !(lfi1)(/assets/img/htb-breadcrumbs/LFI1.png)
+ ![lfi1](/assets/img/htb-breadcrumbs/LFI1.png)
 
  Aside from the title and author parameters we have "method=0" which seems odd
 
 Let's first send the request to repeater and change "method=1"
 
- !(lfi21)(/assets/img/htb-breadcrumbs/LFI21.png)
+ ![lfi21](/assets/img/htb-breadcrumbs/LFI21.png)
 
- !(lfi22)(/assets/img/htb-breadcrumbs/LFI22.png)
+ ![lfi22](/assets/img/htb-breadcrumbs/LFI22.png)
 
  We get a different and an interesting response which screams "local file inclusion" that also leaks the parameter "book", let's check if that works
 
- !(lfi3)(/assets/img/htb-breadcrumbs/LFI3.png)
+ ![lfi3](/assets/img/htb-breadcrumbs/LFI3.png)
 
  And yes! We have an LFI, let's keep enumerating we don't really have anything interesting to read yet
 
@@ -95,12 +95,12 @@ gobuster dir -u http://10.10.10.228/ -w /usr/share/seclists/Discovery/Web-Conten
 > -x prefix for adding extensions when fuzzing , since we're working on windows box we may find asp/x files
 > Also chose the lowercase version of raft-directories because windows is key sensitive,
 
-!(gob)(/assets/img/htb-breadcrumbs/gob.png)
+![gob](/assets/img/htb-breadcrumbs/gob.png)
 
 Seems like we have a login panel
 
 
-!(login)(/assets/img/htb-breadcrumbs/login.png)
+![login](/assets/img/htb-breadcrumbs/login.png)
 
 Since we're looking for files to read we're not gonna try to do stuff with the login panel! Let's run gobuster again 
 
@@ -109,23 +109,23 @@ gobuster dir -u http://10.10.10.228/portal -w /usr/share/seclists/Discovery/Web-
 ```
 
 
-!(gob)(/assets/img/htb-breadcrumbs/gob1.png)
+![gob](/assets/img/htb-breadcrumbs/gob1.png)
 
 Let's check all of these
 
 
 `/includes/`
-!(gob2)(/assets/img/htb-breadcrumbs/include.png)
+![gob2](/assets/img/htb-breadcrumbs/include.png)
 
 
 
 `/php/`
-!(files)(/assets/img/htb-breadcrumbs/files.png)
+![files](/assets/img/htb-breadcrumbs/files.png)
 
 
 
 
-!(users)(/assets/img/htb-breadcrumbs/users.png)
+![users](/assets/img/htb-breadcrumbs/users.png)
 Here we have a list of users, Let's take note of them first and save them somewhere in case we needed users later
 
 
@@ -139,7 +139,7 @@ Let's not waste more time and check the files under /includes/ and also the cook
 `include/fileController.php`
 
 
-!(filecont)(/assets/img/htb-breadcrumbs/filecont.png)
+![filecont](/assets/img/htb-breadcrumbs/filecont.png)
 
 We get the JWT secret
 
@@ -157,7 +157,7 @@ Seems like we need to login as the user paul
 
 Let's check `Cookie.php`
 
-!(cookie)(/assets/img/htb-breadcrumbs/cookie.png)
+![cookie](/assets/img/htb-breadcrumbs/cookie.png)
 
 If we clean the response, a quick sed to remove the "\r \n and \"
 
@@ -193,13 +193,13 @@ for ($seed = 0; $seed <= strlen($user) - 1; $seed++) {
 ?>
 ```
 
-!(cok)(/assets/img/htb-breadcrumbs/cok.png)
+![cok](/assets/img/htb-breadcrumbs/cok.png)
 
 Let's try them one by one and check if we can get in
 
-!(adm1)(/assets/img/htb-breadcrumbs/adm1.png)
+![adm1](/assets/img/htb-breadcrumbs/adm1.png)
 
-!(adm.png)(/assets/img/htb-breadcrumbs/adm.png)
+![adm.png](/assets/img/htb-breadcrumbs/adm.png)
 
 
 And we're in!
@@ -207,16 +207,16 @@ And we're in!
 
 Nothing interesting in the Issues page
 
-!(issues)(/assets/img/htb-breadcrumbs/Issues.png)
+![issues](/assets/img/htb-breadcrumbs/Issues.png)
 
 Let's check the File management page
 
-!(file)(/assets/img/htb-breadcrumbs/file.png)
+![file](/assets/img/htb-breadcrumbs/file.png)
 
 Let's try to upload anything to see if it works
 
 
-!(token)(/assets/img/htb-breadcrumbs/token.png)
+![token](/assets/img/htb-breadcrumbs/token.png)
 
 Seems like we need a token! We have the secret, but we forgot to check what data we should provide!
 Let's check the response back
