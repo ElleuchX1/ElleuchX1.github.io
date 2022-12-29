@@ -7,7 +7,7 @@ draft: false
 authors: ['elleuch']
 categories: ['HackTheBox', 'Hard']
 tags: ['HackThebox', 'Hard','Windows']
-image: /assets/img/htb-breadcrumbs/featured.jpg
+image: /assets/img/htb-breadcrumbs/featured1.png
 render_with_liquid: false
 ---
 
