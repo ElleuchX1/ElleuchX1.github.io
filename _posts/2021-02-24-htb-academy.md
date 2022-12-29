@@ -19,7 +19,7 @@ render_with_liquid: false
 sudo nmap -sC -sV -T5 -oA nmap -O -A -v 10.10.10.215
 ```
 
-![](/assets/img/htb-academy/nmap.png)
+![nmap sc](/assets/img/htb-academy/nmap.png)
 
 As we see we have 2 ports open <br/>
 SSH on port 22 running OpenSSH 8.2p1 <br/>
@@ -36,7 +36,7 @@ we notice as well the academy.htb domain, which we should add to /etc/hosts.
 gobuster dir -w /opt/SecLists/Discovery/Web-Content/raft-medium-files.txt -u http://academy.htb -x php
 ```
 
-![](/assets/img/htb-academy/gob.png)
+![gob sc](/assets/img/htb-academy/gob.png)
 
 
 # Initial Foothold
@@ -69,12 +69,12 @@ We can notice the <b>roleid</b>	parameter which is set to 0. we can assume that'
 
 Let's change change 0 to 1 and forward the request and create our privileged user and try to login to <b>/admin.php</b> 
 
-![](/assets/img/htb-academy/planner.png)
+![planner sc](/assets/img/htb-academy/planner.png)
 
 As we see above the planner leaks to us a subdomain <b>dev-staging-01.academy.htb</b> <br/>
 Let's add it to /etc/hosts and see what we get
 
-![](/assets/img/htb-academy/laravel.png)
+![laravel sc](/assets/img/htb-academy/laravel.png)
 
 Errors! That sounds promosing! Scrolling down we can see something really interesting
 ```
@@ -86,7 +86,7 @@ For this exploit we'll be using this script, a pretty easy syntax.
 https://github.com/aljavier/exploit_laravel_cve-2018-15133/blob/main/pwn_laravel.py
 ```
 
-![](/assets/img/htb-academy/foothold.png)
+![ft sc](/assets/img/htb-academy/foothold.png)
 
 And voilà we're on the box
 
@@ -95,27 +95,27 @@ And voilà we're on the box
 Now let's start enumarating,We already know that the webserver is running PHP Laravel. </br>
 The first thing we should look at is the <b>.env</b> file. </br>
 
-![](/assets/img/htb-academy/env.png)
+![env sc](/assets/img/htb-academy/env.png)
 
 And we get a password! <br />
 `mySup3rP4s5w0rd!!` <br/>
 Let's see if it belongs to any existing user
 
-![](/assets/img/htb-academy/users.png)
+![users sc](/assets/img/htb-academy/users.png)
 
 After manually trying to switch to these users, it turns out to be cry0l1t3's password
 
-![](/assets/img/htb-academy/logincry.png)
+![logincry sc](/assets/img/htb-academy/logincry.png)
 
 Our user is in the <b>adm</b> group! So basically we can read logs! And also we can read the audit log! We can grab some juicy informations from it
 
-![](/assets/img/htb-academy/mrb3.png)
+![mrb3 sc](/assets/img/htb-academy/mrb3.png)
 
 `data=6D7262336E5F41634064336D79210A`
 
 Seems we got a password! But it's hex encoded! Let's decode it
 
-![](/assets/img/htb-academy/pw.png)
+![pwsc sc](/assets/img/htb-academy/pw.png)
 
 
 `mrb3n_Ac@d3my!`
@@ -126,7 +126,7 @@ Seems like it's mrb3n's password!
 
 Mrb3n can execute <b>/usr/bin/composer</b> as root!
 
-![](/assets/img/htb-academy/sudo.png)
+![sudo sc](/assets/img/htb-academy/sudo.png)
 
 Going through the docs of composer we can find out that we can execute a custom script using composer! we need to create a composer.json first in any folder we want!
 ```json
@@ -148,7 +148,7 @@ And execute
 sudo /usr/bin/composer --working-dir=fake run-script shell
 ```
 
-![](/assets/img/htb-academy/root.png)
+![root sc](/assets/img/htb-academy/root.png)
 
 
 And we rooted the box! <br/>
