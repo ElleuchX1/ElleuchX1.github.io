@@ -1,0 +1,4 @@
+Contact: mailto:ElleuchX1@proton.me
+Expires: 2027-12-31T00:00:00.000Z
+Preferred-Languages: en, fr
+Canonical: https://elleu.ch/.well-known/security.txt

