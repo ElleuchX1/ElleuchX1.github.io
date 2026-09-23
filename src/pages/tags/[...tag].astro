@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { slugifyTag, tagHref } from '../../utils';
+
+export async function getStaticPaths() {
+  const SOURCES = [['posts', '/posts/'], ['notes', '/notes/'], ['tools', '/tools/']] as const;
+  const all: { entry: any; base: string }[] = [];
+  for (const [name, base] of SOURCES) {
+    const items = await getCollection(name, ({ data }) => !data.draft);
+    for (const it of items) all.push({ entry: it, base });
+  }
+  const names = new Map<string, string>();
+  for (const { entry } of all) {
+    for (const t of entry.data.tags ?? []) {
+      const s = slugifyTag(t);
+      if (!names.has(s)) names.set(s, t);
+    }
+  }
+  return [...names.entries()].map(([slug, label]) => ({
+    params: { tag: slug },
+    props: {
+      label,
+      items: all
+        .filter((x) => (x.entry.data.tags ?? []).some((t: string) => slugifyTag(t) === slug))
+        .sort((a, b) => b.entry.data.date.valueOf() - a.entry.data.date.valueOf()),
+    },
+  }));
+}
+
+const { label, items } = Astro.props;
+---
+
+<BaseLayout title={`#${label}`}>
+  <div class="wrap">
+    <header class="hero">
+      <a class="back" href="/tags/">← Tags</a>
+      <h1>#{label}</h1>
+      <p class="lede">{items.length} entries</p>
+    </header>
+    <div class="entries">
+      {items.map(({ entry, base }) => {
+        const d = entry.data.date;
+        const tags = entry.data.tags ?? [];
+        return (
+          <div class="entry">
+            <time datetime={d.toISOString()}>{d.toISOString().slice(0, 10)}</time>
+            <h3><a href={`${base}${entry.id}/`}>{entry.data.title}</a></h3>
+            <div class="tags">
+              {tags.map((t: string) => <span><a href={tagHref(t)}>{t}</a></span>)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>

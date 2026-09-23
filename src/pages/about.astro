@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE, AFFILIATIONS } from '../consts';
+---
+
+<BaseLayout title="About" description="About ElleuchX1">
+  <div class="wrap">
+    <article class="article">
+      <header class="article-head">
+        <h1>About</h1>
+      </header>
+      <div class="prose">
+        <p>
+          Security researcher focused on web and cloud security. I do some bug
+          bounty on the side.
+        </p>
+        <p>
+          {AFFILIATIONS.map((group, gi) => (
+            <span>
+              {group.text}{' '}
+              {group.links.map((l, i) => (
+                <>{i > 0 && ' and '}<a href={l.url} rel="noopener">{l.name}</a></>
+              ))}.{gi < AFFILIATIONS.length - 1 ? ' ' : ''}
+            </span>
+          ))}
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          <a href={SITE.github}>github</a> ·
+          <a href={SITE.twitter}>x / twitter</a> ·
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        </p>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

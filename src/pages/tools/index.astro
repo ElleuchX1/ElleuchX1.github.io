@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getCollection } from 'astro:content';
+
+const tools = (await getCollection('tools', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<BaseLayout title="Tools & Exploits">
+  <div class="wrap">
+    <header class="hero">
+      <h1>Tools &amp; exploits</h1>
+      <p class="lede">Scripts, PoCs and exploits.</p>
+    </header>
+    {tools.length === 0 ? <p class="muted">Nothing here yet.</p> : <PostList entries={tools} base="/tools/" />}
+  </div>
+</BaseLayout>

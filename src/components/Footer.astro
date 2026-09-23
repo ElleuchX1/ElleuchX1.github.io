@@ -1,0 +1,15 @@
+---
+import { SITE } from '../consts';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer" data-pagefind-ignore>
+  <div class="inner">
+    <span>© {year} {SITE.author}</span>
+    <span>
+      <a href={SITE.github}>github</a> ·
+      <a href={SITE.twitter}>x</a> ·
+      <a href="/rss.xml">rss</a> ·
+      <a href={`mailto:${SITE.email}`}>mail</a>
+    </span>
+  </div>
+</footer>

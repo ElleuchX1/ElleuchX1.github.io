@@ -1,0 +1,141 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+import { tagHref } from '../utils';
+
+type Entry = CollectionEntry<'posts'> | CollectionEntry<'notes'> | CollectionEntry<'tools'>;
+
+interface Props {
+  entry: Entry;
+  kind?: string;
+  base?: string;
+  readingTime?: number;
+  prev?: Entry | null;
+  next?: Entry | null;
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { entry, kind = 'Posts', base = '/posts/', readingTime, prev, next, headings = [] } = Astro.props;
+const { title, date, tags, summary } = entry.data;
+const dateStr = date.toISOString().slice(0, 10);
+const ogImage = `/og/${entry.id}.png`;
+const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+<BaseLayout title={title} description={summary} image={ogImage}>
+  <div class="progress" id="progress"></div>
+  <div class="wrap">
+    <article class="article" data-pagefind-body>
+      <a class="back" href={base}>← {kind}</a>
+      <header class="article-head">
+        <h1 data-pagefind-meta="title">{title}</h1>
+        <div class="article-meta">
+          <time datetime={date.toISOString()}>{dateStr}</time>
+          {readingTime && (<span>{readingTime} min read</span>)}
+        </div>
+        {tags.length > 0 && (
+          <div class="article-tags">
+            {tags.map((t) => <a href={tagHref(t)}>#{t}</a>)}
+          </div>
+        )}
+      </header>
+
+      {toc.length >= 2 && (
+        <details class="toc" open data-pagefind-ignore>
+          <summary>contents</summary>
+          <ul>
+            {toc.map((h) => (
+              <li class={`d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <div class="prose">
+        <slot />
+      </div>
+
+      {(prev || next) && (
+        <nav class="pager" aria-label="Post navigation">
+          {prev ? (
+            <a href={`${base}${prev.id}/`}><span class="lbl">← prev</span>{prev.data.title}</a>
+          ) : <span />}
+          {next ? (
+            <a class="next" href={`${base}${next.id}/`}><span class="lbl">next →</span>{next.data.title}</a>
+          ) : <span />}
+        </nav>
+      )}
+    </article>
+  </div>
+
+  {toc.length >= 2 && (
+    <aside class="toc-rail" data-pagefind-ignore aria-label="Table of contents">
+      <div class="lbl">contents</div>
+      <ul>
+        {toc.map((h) => (
+          <li class={`d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>
+        ))}
+      </ul>
+    </aside>
+  )}
+
+  <button class="to-top" id="to-top" type="button" aria-label="Back to top">↑ top</button>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    // reading progress + back-to-top
+    var bar = document.getElementById('progress');
+    var top = document.getElementById('to-top');
+    function update() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar) bar.style.width = pct * 100 + '%';
+      if (top) top.classList.toggle('show', h.scrollTop > 600);
+    }
+    document.addEventListener('scroll', update, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    update();
+
+    // permalink anchors on headings
+    document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', 'Link to this section');
+      a.textContent = '#';
+      h.appendChild(a);
+    });
+
+    // code blocks: language label + copy button
+    document.querySelectorAll('.prose pre.astro-code').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code';
+      pre.parentNode.insertBefore(wrap, pre);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      var lang = pre.getAttribute('data-language') || 'text';
+      var span = document.createElement('span');
+      span.className = 'code-lang';
+      span.textContent = lang;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy';
+      btn.textContent = 'copy';
+      btn.addEventListener('click', function () {
+        var text = pre.innerText;
+        var done = function () { btn.textContent = 'copied'; setTimeout(function () { btn.textContent = 'copy'; }, 1200); };
+        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); }
+        else {
+          var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {} ta.remove(); done();
+        }
+      });
+      bar.appendChild(span);
+      bar.appendChild(btn);
+      wrap.appendChild(bar);
+      wrap.appendChild(pre);
+    });
+  })();
+</script>

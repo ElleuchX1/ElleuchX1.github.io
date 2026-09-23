@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { tagHref } from '../utils';
+
+interface Props {
+  entries: (CollectionEntry<'posts'> | CollectionEntry<'notes'> | CollectionEntry<'tools'>)[];
+  base: string;
+  showTags?: boolean;
+}
+
+const { entries, base, showTags = true } = Astro.props;
+---
+
+<div class="entries">
+  {entries.map((entry) => {
+    const d = entry.data.date;
+    const dateStr = d.toISOString().slice(0, 10);
+    const tags = entry.data.tags ?? [];
+    return (
+      <div class="entry">
+        <time datetime={d.toISOString()}>{dateStr}</time>
+        <h3><a href={`${base}${entry.id}/`}>{entry.data.title}</a></h3>
+        {showTags && tags.length > 0 ? (
+          <div class="tags">
+            {tags.map((t) => <span><a href={tagHref(t)}>{t}</a></span>)}
+          </div>
+        ) : (
+          <div class="tags" />
+        )}
+      </div>
+    );
+  })}
+</div>

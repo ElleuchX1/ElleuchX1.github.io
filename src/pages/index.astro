@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import { getCollection } from 'astro:content';
+import { SITE, AFFILIATIONS } from '../consts';
+
+const byDate = (a: any, b: any) => b.data.date.valueOf() - a.data.date.valueOf();
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(byDate);
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(byDate);
+const tools = (await getCollection('tools', ({ data }) => !data.draft)).sort(byDate);
+---
+
+<BaseLayout>
+  <div class="wrap">
+    <section class="hero">
+      <h1>{SITE.author}</h1>
+      <p class="lede">
+        Security researcher focused on web and cloud security.
+      </p>
+      <nav class="links" aria-label="Elsewhere">
+        <a href={SITE.github}>github</a>
+        <a href={SITE.twitter}>x</a>
+        <a href={`mailto:${SITE.email}`}>email</a>
+        <a href="/rss.xml">rss</a>
+      </nav>
+      <div class="affil">
+        {AFFILIATIONS.map((group) => (
+          <span class="grp">
+            <span class="k">{group.label}</span>
+            {group.links.map((l, i) => (
+              <>{i > 0 && <span class="sep"> · </span>}<a href={l.url} rel="noopener">{l.name}</a></>
+            ))}
+          </span>
+        ))}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="title">Recent posts</span>
+        <a href="/posts/">all posts →</a>
+      </div>
+      <PostList entries={posts.slice(0, 5)} base="/posts/" />
+    </section>
+
+    {notes.length > 0 && (
+      <section class="section">
+        <div class="section-head">
+          <span class="title">Notes</span>
+          <a href="/notes/">all notes →</a>
+        </div>
+        <PostList entries={notes.slice(0, 4)} base="/notes/" showTags={false} />
+      </section>
+    )}
+
+    {tools.length > 0 && (
+      <section class="section">
+        <div class="section-head">
+          <span class="title">Tools</span>
+          <a href="/tools/">all tools →</a>
+        </div>
+        <PostList entries={tools.slice(0, 4)} base="/tools/" showTags={false} />
+      </section>
+    )}
+  </div>
+</BaseLayout>

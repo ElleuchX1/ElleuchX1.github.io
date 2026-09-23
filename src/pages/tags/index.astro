@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { slugifyTag } from '../../utils';
+
+const SOURCES = [['posts', '/posts/'], ['notes', '/notes/'], ['tools', '/tools/']] as const;
+
+const map = new Map<string, { name: string; count: number }>();
+for (const [name] of SOURCES) {
+  const items = await getCollection(name, ({ data }) => !data.draft);
+  for (const it of items) {
+    for (const t of it.data.tags ?? []) {
+      const slug = slugifyTag(t);
+      const cur = map.get(slug) ?? { name: t, count: 0 };
+      cur.count += 1;
+      map.set(slug, cur);
+    }
+  }
+}
+const tags = [...map.entries()].sort((a, b) => b[1].count - a[1].count || a[1].name.localeCompare(b[1].name));
+---
+
+<BaseLayout title="Tags">
+  <div class="wrap">
+    <header class="hero">
+      <h1>Tags</h1>
+      <p class="lede">{tags.length} tags.</p>
+    </header>
+    <div class="entries">
+      {tags.map(([slug, t]) => (
+        <a class="entry" href={`/tags/${slug}/`}>
+          <time>{String(t.count).padStart(2, '0')}</time>
+          <h3>{t.name}</h3>
+          <div class="tags" />
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

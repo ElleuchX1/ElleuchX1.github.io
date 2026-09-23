@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import { NAV } from '../consts';
+import ThemeToggle from './ThemeToggle.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => path === href || (href !== '/' && path.startsWith(href));
+
+// Hide sections that have no entries yet.
+const gated: Record<string, 'notes' | 'tools'> = { '/notes/': 'notes', '/tools/': 'tools' };
+const nav = [];
+for (const item of NAV) {
+  const coll = gated[item.href];
+  if (coll) {
+    const items = await getCollection(coll, ({ data }) => !data.draft);
+    if (items.length === 0) continue;
+  }
+  nav.push(item);
+}
+---
+
+<header class="site-header" data-pagefind-ignore>
+  <div class="inner">
+    <a class="brand" href="/">elleuch<span class="at">:~$</span></a>
+    <nav class="nav" aria-label="Main">
+      {nav.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+      <a class="search" href="/search/"><kbd>/</kbd></a>
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Search" description="Search posts, notes and tools">
+  <div class="wrap">
+    <div class="search-wrap">
+      <header class="hero">
+        <h1>Search</h1>
+        <p class="lede">Search posts, notes and tools.</p>
+      </header>
+      <div id="search"></div>
+    </div>
+  </div>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.PagefindUI) {
+        var ui = new PagefindUI({ element: '#search', showSubResults: true, showImages: false, resetStyles: false });
+        var input = document.querySelector('#search input');
+        if (input) setTimeout(function () { input.focus(); }, 80);
+      }
+    });
+  </script>
+</BaseLayout>
